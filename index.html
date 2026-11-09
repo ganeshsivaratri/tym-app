@@ -503,6 +503,20 @@ h1{font-size:32px;font-weight:850}
   .qa-actions .btn{flex:1}
 }
 
+/* ============================================================
+   18. QUICK BAR FIX v2.3 — the bar's real class is .quick.
+   (Sections 16-17 targeted a wrong class name, .quick-add,
+   which no element uses — that is why the phone layout never
+   changed.) Now: input takes the full first row on phones,
+   the buttons share the row below it.
+   ============================================================ */
+.quick input{min-width:0}
+@media (max-width:820px){
+  .quick{flex-wrap:wrap}
+  .quick input{flex:1 1 100%;width:100%}
+  .quick .btn{flex:1 1 auto}
+}
+
 </style>
 </head>
 <body data-screen="today">
@@ -520,7 +534,7 @@ h1{font-size:32px;font-weight:850}
     <h1 id="screenTitle">☀️ Today</h1>
     <p class="greeting" id="greetingLine"></p>
     <div class="quick" id="quickBar">
-      <input class="field" id="quickInput" type="text" placeholder="Quick add — try: Pay fees tomorrow 5pm !high #college">
+      <input class="field" id="quickInput" type="text" placeholder="Type here…">
       <button class="btn btn-primary" id="quickAddBtn">Add</button>
       <button class="btn" id="voiceBtn" title="Speak your task">🎙</button>
       <button class="btn" id="newTaskBtn">＋ Full Task</button>
@@ -1740,6 +1754,48 @@ function tymBuzz(pattern) {
   try { if (navigator.vibrate) navigator.vibrate(pattern || 200); } catch (e) { /* no vibrate */ }
 }
 
+/* ---------- voice input through Android (v2.3) ----------
+   The browser's speech recognition does not exist inside
+   the app WebView, so the app uses the phone's own speech
+   engine (SpeechRecognition plugin). Resolves true when the
+   native path handled the tap (success or error toast),
+   false in a browser, where the web path runs instead. */
+function tymVoiceInput(onText) {
+  const SR = tymInApp() && window.Capacitor.Plugins.SpeechRecognition;
+  if (!SR) return Promise.resolve(false);
+  const ask = SR.requestPermissions ? SR.requestPermissions()
+    : (SR.requestPermission ? SR.requestPermission() : Promise.resolve(null));
+  return Promise.resolve(ask)
+    .then(perm => {
+      if (perm && perm.speechRecognition && perm.speechRecognition !== 'granted') {
+        throw new Error('permission');
+      }
+      showToast('🎙 Listening… speak your task');
+      return SR.start({ language: 'en-IN', maxResults: 1, partialResults: false, popup: false });
+    })
+    .then(res => {
+      if (res && res.matches && res.matches[0]) onText(res.matches[0]);
+      return true;
+    })
+    .catch(() => { showToast('Voice not available — allow mic permission and try again'); return true; });
+}
+
+/* ---------- save a file inside the app (v2.3) ----------
+   Blob downloads do nothing inside the app WebView, so in
+   the app the file is written and handed to the Android
+   share sheet (save it, send it, keep it). Resolves false
+   in a browser, where the normal download runs instead. */
+function tymSaveAndShare(filename, text) {
+  if (!tymInApp()) return Promise.resolve(false);
+  const FS = window.Capacitor.Plugins.Filesystem;
+  const SH = window.Capacitor.Plugins.Share;
+  if (!FS || !SH) return Promise.resolve(false);
+  return FS.writeFile({ path: filename, data: text, directory: 'CACHE', encoding: 'utf8' })
+    .then(w => SH.share({ title: filename, url: w.uri, dialogTitle: 'Save ' + filename }))
+    .then(() => true)
+    .catch(() => false);
+}
+
 </script>
 <script>
 'use strict';
@@ -2273,15 +2329,12 @@ function render() {
 
   let html =
     '<div class="focus-banner stagger"><h2>🎯 My Day — Top 3</h2>' + focusHTML + '</div>' +
-    '<div class="stat-grid" style="margin-bottom:18px">' +
-      '<div class="stat"><b>' + stats.doneToday + '</b><span>done today</span></div>' +
-      '<div class="stat"><b>' + stats.streak + ' 🔥</b><span>day streak</span></div>' +
-      '<div class="stat"><b>' + stats.openCount + '</b><span>open tasks</span></div>' +
-    '</div>' +
     '<div class="card ring-wrap" style="margin-bottom:6px">' + ringHTML(stats.pctToday) +
       '<div><div class="ring-num">' + stats.pctToday + '% of today done</div>' +
       '<div style="color:var(--muted)">' + stats.doneDueToday + ' of ' +
-        stats.dueTodayCount + ' tasks due today are complete</div></div>' +
+        stats.dueTodayCount + ' tasks due today complete</div>' +
+      '<div style="color:var(--muted);margin-top:2px">🔥 ' + stats.streak + ' day streak · ' +
+        stats.openCount + ' open tasks</div></div>' +
     '</div>';
 
   // Overdue first — it needs attention — then today's list.
@@ -2366,6 +2419,17 @@ function quickAdd() {
 /* Voice input (F5): speak the task instead of typing.
    Uses the browser's speech recognition when available. */
 function voiceAdd() {
+  // In the phone app, Android's own speech engine does this.
+  if (typeof tymVoiceInput === 'function') {
+    tymVoiceInput(text => {
+      document.getElementById('quickInput').value = text;
+      quickAdd();
+    }).then(handled => { if (!handled) voiceAddWeb(); });
+    return;
+  }
+  voiceAddWeb();
+}
+function voiceAddWeb() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showToast('Voice input is not supported in this browser'); return; }
   const rec = new SR();
@@ -2389,7 +2453,11 @@ __tymInit('today', () => {
   const vb = document.getElementById('voiceBtn');
   if (vb) vb.addEventListener('click', voiceAdd);
   const pb = document.getElementById('printBtn');
-  if (pb) pb.addEventListener('click', () => window.print());
+  if (pb) {
+    // Printing does nothing inside the app WebView — hide it there.
+    if (typeof tymInApp === 'function' && tymInApp()) pb.style.display = 'none';
+    else pb.addEventListener('click', () => window.print());
+  }
 });
 
 /* Re-draw when the data changes anywhere (editor, cards). */
@@ -3644,7 +3712,7 @@ function render() {
     '<div class="card"><h2>⚠️ Danger zone</h2>' +
       '<p style="color:var(--muted)">Erase every task, habit and setting on this device. Export a backup first if unsure.</p>' +
       '<button class="btn" id="eraseBtn" style="border-color:var(--high);color:var(--high)">Erase everything</button></div>' +
-    '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin:14px 0 4px">TYM — Track Your Mind · App version <b>v2.2</b> (quick-add fix + Guide)</p>';
+    '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin:14px 0 4px">TYM — Track Your Mind · App version <b>v2.3</b> (simple Today, voice + export fix)</p>';
 
   updateNotifyState();
   document.getElementById('notifyBtn').addEventListener('click', enableNotifications);
@@ -3662,6 +3730,12 @@ function render() {
     showToast('Theme: ' + e.target.value);
   });
   document.getElementById('icsBtn').addEventListener('click', () => {
+    tymSaveAndShare('tym-tasks.ics', buildICS(state.tasks)).then(shared => {
+      if (shared) { showToast('Calendar file ready 📆'); return; }
+      downloadICS();
+    });
+  });
+  function downloadICS() {
     const blob = new Blob([buildICS(state.tasks)], { type: 'text/calendar' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -3669,7 +3743,7 @@ function render() {
     a.click();
     URL.revokeObjectURL(a.href);
     showToast('Calendar file downloaded 📆');
-  });
+  }
   document.getElementById('sampleBtn').addEventListener('click', loadSampleDay);
   document.getElementById('sampleDelBtn').addEventListener('click', removeSampleDay);
   document.getElementById('exportBtn').addEventListener('click', exportBackup);
@@ -3702,12 +3776,17 @@ async function enableNotifications() {
 
 /* Download the whole state as tym-backup.json. */
 function exportBackup() {
-  const blob = new Blob([stateToBackupText(state)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'tym-backup.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const text = stateToBackupText(state);
+  // In the app, downloads do nothing — use the share sheet.
+  tymSaveAndShare('tym-backup.json', text).then(shared => {
+    if (shared) { showToast('Backup ready — save it somewhere safe 💾'); return; }
+    const blob = new Blob([text], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tym-backup.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
 }
 
 /* Load a backup file back in (parseState guards bad files). */
