@@ -470,6 +470,9 @@ h1{font-size:32px;font-weight:850}
   .main{padding-bottom:120px}
 }
 
+.task{touch-action:pan-y}
+.xp-card{background:linear-gradient(120deg, rgba(246,183,60,.16), rgba(245,158,11,.05));border-color:rgba(246,183,60,.45)}
+
 </style>
 </head>
 <body data-screen="today">
@@ -496,6 +499,7 @@ h1{font-size:32px;font-weight:850}
     <div id="allToolbar" style="display:none"><div class="toolbar">
       <input class="field" id="searchInput" type="search" placeholder="🔍 Search tasks…">
       <select class="field" id="sortSel">
+        <option value="group" selected>Sort: Grouped by when</option>
         <option value="due">Sort: Due date</option>
         <option value="priority">Sort: Priority</option>
         <option value="created">Sort: Newest</option>
@@ -631,11 +635,41 @@ function stateToBackupText(state) {
   return JSON.stringify(state, null, 2);
 }
 
+/* ---------- automatic snapshots ----------
+   Every day the app keeps one snapshot of the state (the
+   newest 3 are kept). If something ever goes wrong, the
+   user can restore one from Settings. Rotation is a pure
+   function so the tests can check it. */
+const TYM_SNAPSHOT_KEY = 'tym-snapshots-v1';
+
+function rotateSnapshots(snaps, entry, keep) {
+  const list = (snaps || []).filter(x => x.day !== entry.day).concat(entry);
+  return list.slice(-(keep || 3));
+}
+
+function maybeSnapshot(state, now) {
+  try {
+    const day = todayStr(now);
+    const raw = localStorage.getItem(TYM_SNAPSHOT_KEY);
+    const snaps = raw ? JSON.parse(raw) : [];
+    if (snaps.length && snaps[snaps.length - 1].day === day) return;
+    const next = rotateSnapshots(snaps, { day, at: Date.now(), data: JSON.stringify(state) });
+    localStorage.setItem(TYM_SNAPSHOT_KEY, JSON.stringify(next));
+  } catch (e) { /* snapshots are a safety net, never a crash source */ }
+}
+
+function readSnapshots() {
+  try {
+    const raw = localStorage.getItem(TYM_SNAPSHOT_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
 /* Make the pure functions available to the Node tests. */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     TYM_STORAGE_KEY, createDefaultState, isValidState,
-    parseState, stateToBackupText
+    parseState, stateToBackupText, rotateSnapshots
   };
 }
 
@@ -997,13 +1031,22 @@ const TYM_BOTTOM_BAR = ['today', 'calendar', 'habits', 'focus', 'settings'];
    store.js loads it; every screen file reads and changes it,
    then calls saveState(state) after a change. */
 let state = loadState();
+maybeSnapshot(state, new Date());
 
-/* ---------- theme ---------- */
+/* ---------- theme ----------
+   settings.theme is 'light', 'dark', or 'auto'.
+   Auto = dark from 19:00 to 07:00, light the rest of the day. */
+function resolvedTheme() {
+  const pref = state.settings.theme || 'light';
+  if (pref !== 'auto') return pref;
+  const h = new Date().getHours();
+  return (h >= 19 || h < 7) ? 'dark' : 'light';
+}
 function applyTheme() {
-  document.documentElement.dataset.theme = state.settings.theme || 'light';
+  document.documentElement.dataset.theme = resolvedTheme();
 }
 function toggleTheme() {
-  state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+  state.settings.theme = resolvedTheme() === 'dark' ? 'light' : 'dark';
   saveState(state);
   applyTheme();
 }
@@ -1075,6 +1118,7 @@ function greetingText(now) {
 /* ---------- runs on every screen ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme();
+  setInterval(applyTheme, 60000); // auto theme flips itself at 19:00 / 07:00
   buildSidebar();
   buildBottomBar();
   // Sidebar buttons navigate between screens.
@@ -1124,14 +1168,21 @@ function paletteActions() {
 function renderPalette() {
   const q = document.getElementById('palInput').value.trim().toLowerCase();
   const list = document.getElementById('palList');
-  list.innerHTML = paletteActions()
-    .filter(a => !q || a.label.toLowerCase().includes(q))
+  const acts = paletteActions().filter(a => !q || a.label.toLowerCase().includes(q));
+  // Tasks are searchable too: pick one to open its editor.
+  if (q && typeof searchTasks === 'function' && typeof findTask === 'function') {
+    const hits = searchTasks(state.tasks.filter(t => t.status !== 'done'), q).slice(0, 5);
+    for (const t of hits) {
+      acts.push({ label: '✏️  Task: ' + t.title, run: () => {
+        if (typeof openTaskEditor === 'function') openTaskEditor(findTask(state, t.id));
+      }});
+    }
+  }
+  list.innerHTML = acts
     .map((a, i) => '<button class="pal-item" data-pal="' + i + '">' + escapeHTML(a.label.replace(/^\S+\s+/, '')) + '</button>')
     .join('') || '<p class="pal-hint">No matches.</p>';
-  // Re-bind with correct indexes from the filtered list.
-  const filtered = paletteActions().filter(a => !q || a.label.toLowerCase().includes(q));
   list.querySelectorAll('[data-pal]').forEach((b, i) =>
-    b.addEventListener('click', () => { closePalette(); filtered[i].run(); }));
+    b.addEventListener('click', () => { closePalette(); acts[i].run(); }));
 }
 
 function openPalette() {
@@ -1571,6 +1622,50 @@ document.addEventListener('click', e => {
   }
 });
 
+/* ---------- swipe gestures on task cards (phones) ----------
+   Swipe right = mark done. Swipe left = delete (with Undo).
+   Touches that start on a button, checkbox or subtask are
+   left alone, and vertical scrolling still works. */
+let swipeCard = null, swipeX = 0;
+document.addEventListener('touchstart', e => {
+  const card = e.target.closest('.task');
+  if (!card || e.target.closest('button, input, select, textarea, label, a')) { swipeCard = null; return; }
+  swipeCard = card;
+  swipeX = e.touches[0].clientX;
+}, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (!swipeCard) return;
+  const dx = e.touches[0].clientX - swipeX;
+  if (Math.abs(dx) > 12) swipeCard.style.transform = 'translateX(' + dx * 0.6 + 'px)';
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (!swipeCard) return;
+  const card = swipeCard;
+  swipeCard = null;
+  const dx = e.changedTouches[0].clientX - swipeX;
+  card.style.transform = '';
+  const id = card.dataset.card;
+  if (!id) return;
+  if (dx > 80) {
+    const t = findTask(state, id);
+    if (t) {
+      setTaskDone(state, id, t.status !== 'done', new Date());
+      saveState(state);
+      announceChange();
+      if (t.status === 'done') showToast('Done 🎉');
+    }
+  } else if (dx < -80) {
+    const removed = removeTask(state, id);
+    saveState(state);
+    announceChange();
+    if (removed) showToast('Task deleted', 'Undo', () => {
+      restoreTask(state, removed);
+      saveState(state);
+      announceChange();
+    });
+  }
+});
+
 </script>
 <script>
 'use strict';
@@ -1937,8 +2032,36 @@ function weekSummary(completions, now) {
   }));
 }
 
+/* ---------- XP + levels (Review screen) ----------
+   XP = 10 per completed task + 1 per focus minute
+   + 5 per habit tick. Levels grow x1.6 each time. */
+const LEVELS = [
+  { xp: 0, name: 'Starter 🌱' }, { xp: 100, name: 'Mover 🚶' },
+  { xp: 250, name: 'Builder 🔨' }, { xp: 500, name: 'Streaker 🔥' },
+  { xp: 900, name: 'Focused 🎯' }, { xp: 1500, name: 'Machine ⚙️' },
+  { xp: 2400, name: 'Master 🧠' }, { xp: 4000, name: 'Legend 👑' }
+];
+
+function totalXP(state) {
+  const tasksXP = state.tasks.filter(t => t.status === 'done').length * 10;
+  const focusXP = state.focusLog.reduce((a, s) => a + s.minutes, 0);
+  const habitXP = Object.values(state.habitLog || {})
+    .reduce((a, log) => a + Object.keys(log).length * 5, 0);
+  return tasksXP + focusXP + habitXP;
+}
+
+function levelFor(xp) {
+  let cur = LEVELS[0], next = null;
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (xp >= LEVELS[i].xp) { cur = LEVELS[i]; next = LEVELS[i + 1] || null; }
+  }
+  return { current: cur, next,
+    pctToNext: next ? Math.round((xp - cur.xp) / (next.xp - cur.xp) * 100) : 100 };
+}
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { lastNDays, habitStreak, longestStreak, weekSummary };
+  module.exports = { lastNDays, habitStreak, longestStreak, weekSummary,
+    LEVELS, totalXP, levelFor };
 }
 
 </script>
@@ -2016,6 +2139,51 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 </script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · ics.js
+   What this file does: builds an .ics calendar file from
+   tasks that have a due date, so the user can import their
+   plan into Google Calendar / any calendar app.
+   Reminders become calendar alarms (VALARM).
+   Pure string building — the Node tests check it.
+   ============================================================ */
+
+function icsEscape(text) {
+  return String(text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;')
+    .replace(/,/g, '\\,').replace(/\n/g, '\\n');
+}
+
+/* 'YYYY-MM-DD' + 'HH:MM' -> 'YYYYMMDDTHHMMSS' (floating local time) */
+function icsDateTime(due, time) {
+  return due.replace(/-/g, '') + 'T' + (time || '09:00').replace(':', '') + '00';
+}
+
+function buildICS(tasks) {
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TYM//Track Your Mind//EN'];
+  for (const t of tasks) {
+    if (!t.due) continue;
+    lines.push('BEGIN:VEVENT');
+    lines.push('UID:' + t.id + '@tym');
+    lines.push('DTSTART:' + icsDateTime(t.due, t.time));
+    lines.push('SUMMARY:' + icsEscape(t.title));
+    if (t.notes) lines.push('DESCRIPTION:' + icsEscape(t.notes));
+    for (const min of (t.reminders || [])) {
+      lines.push('BEGIN:VALARM', 'ACTION:DISPLAY',
+        'TRIGGER:-PT' + min + 'M', 'DESCRIPTION:' + icsEscape(t.title), 'END:VALARM');
+    }
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { buildICS, icsEscape, icsDateTime };
+}
+
+</script>
 
 <script>
 /* ===== TYM single-file router (registry) =====
@@ -2087,8 +2255,9 @@ function render() {
 
   // Overdue first — it needs attention — then today's list.
   if (groups.overdue.length) {
-    html += '<div class="section-title">⚠️ Overdue</div><div class="stagger">' +
-      groups.overdue.map(t => taskCardHTML(state, t)).join('') + '</div>';
+    html += '<div class="section-title">⚠️ Overdue ' +
+      '<button class="btn" id="moveOverdueBtn" style="margin-left:8px;padding:5px 12px;font-size:12.5px">📅 Move all to today</button></div>' +
+      '<div class="stagger">' + groups.overdue.map(t => taskCardHTML(state, t)).join('') + '</div>';
   }
   html += '<div class="section-title">📅 Today</div>';
   if (groups.today.length) {
@@ -2100,6 +2269,22 @@ function render() {
     html += '<div class="card empty"><p>Nothing else due today. 🎉</p></div>';
   }
   box.innerHTML = html;
+
+  // "Move all to today": one tap clears the overdue pile.
+  const mv = document.getElementById('moveOverdueBtn');
+  if (mv) mv.addEventListener('click', () => {
+    const now2 = new Date();
+    const ods = state.tasks.filter(t => isOverdueTask(t, now2));
+    const old = ods.map(t => ({ id: t.id, due: t.due }));
+    ods.forEach(t => { t.due = todayStr(now2); });
+    saveState(state);
+    render();
+    showToast(ods.length + ' tasks moved to today', 'Undo', () => {
+      old.forEach(o => { const t = findTask(state, o.id); if (t) t.due = o.due; });
+      saveState(state);
+      render();
+    });
+  });
 
   // Day Complete ritual: the first moment today's plan hits
   // 100%, celebrate once and offer the Review screen.
@@ -2197,14 +2382,15 @@ __tymRegister('today', render);
 
 let allQuery = '';       // current search text
 let allList = 'all';     // current list filter ('all' or a list id)
-let allSort = 'due';     // current sort mode
+let allSort = 'group';   // 'group' = sections by when; else a sortTasks mode
 
 function render() {
   const box = document.getElementById('screenContent');
   let tasks = state.tasks.filter(isOpenTask);
   if (allList !== 'all') tasks = tasks.filter(t => t.listId === allList);
   tasks = searchTasks(tasks, allQuery);
-  tasks = sortTasks(tasks, allSort);
+  const grouped = allSort === 'group' && !allQuery;
+  if (!grouped) tasks = sortTasks(tasks, allSort);
 
   // List filter chips, built from the state's lists.
   const chips = ['<button class="btn' + (allList === 'all' ? ' btn-primary' : '') +
@@ -2216,6 +2402,24 @@ function render() {
   if (!tasks.length) {
     box.innerHTML = '<div class="card empty"><div class="empty-art">🗂️</div>' +
       '<p>' + (allQuery ? 'No tasks match your search.' : 'No open tasks here.') + '</p></div>';
+    return;
+  }
+  if (grouped) {
+    // Sections by WHEN: overdue, today, tomorrow, this week, later, no date.
+    const now = new Date();
+    const today = todayStr(now);
+    const buckets = [
+      { name: '⚠️ Overdue', items: tasks.filter(t => isOverdueTask(t, now)) },
+      { name: '📅 Today', items: tasks.filter(t => t.due === today && !isOverdueTask(t, now)) },
+      { name: '🌅 Tomorrow', items: tasks.filter(t => t.due === addDaysStr(today, 1)) },
+      { name: '🗓 This week', items: tasks.filter(t => t.due && t.due > addDaysStr(today, 1) && t.due <= addDaysStr(today, 7)) },
+      { name: '🔭 Later', items: tasks.filter(t => t.due && t.due > addDaysStr(today, 7)) },
+      { name: '📥 No date', items: tasks.filter(t => !t.due) }
+    ];
+    box.innerHTML = buckets.filter(b => b.items.length).map(b =>
+      '<div class="section-title">' + b.name + ' · ' + b.items.length + '</div>' +
+      '<div class="stagger">' + sortTasks(b.items, 'due').map(t => taskCardHTML(state, t)).join('') + '</div>'
+    ).join('') || '<div class="card empty"><p>Nothing here.</p></div>';
     return;
   }
   box.innerHTML = '<div class="stagger">' +
@@ -2802,6 +3006,10 @@ function render() {
         '<button class="btn' + (fMode === 'work' ? ' btn-primary' : '') + '" id="fmWork">🍅 Work ' + fWorkMin + 'm</button>' +
         '<button class="btn' + (fMode === 'break' ? ' btn-primary' : '') + '" id="fmBreak">☕ Break ' + fBreakMin + 'm</button>' +
       '</div>' +
+      '<div class="focus-modes" style="margin-top:8px">' +
+        [15, 25, 50].map(m =>
+          '<button class="btn' + (fWorkMin === m ? ' btn-primary' : '') + '" data-fpreset="' + m + '">' + m + ' min</button>').join('') +
+      '</div>' +
       '<div class="focus-clock" id="fClock">' + fmt(fLeft) + '</div>' +
       '<label style="color:var(--muted);font-size:13px;font-weight:700">Focusing on</label>' +
       '<select class="field" id="fTask" style="max-width:420px;margin:6px auto 14px">' +
@@ -2820,6 +3028,14 @@ function render() {
         ' sessions · ' + minsToday + ' focus minutes</p>' +
     '</div>';
 
+  box.querySelectorAll('[data-fpreset]').forEach(b =>
+    b.addEventListener('click', () => {
+      if (fRunning) { showToast('Pause first to change length'); return; }
+      fWorkMin = parseInt(b.dataset.fpreset, 10);
+      fBreakMin = Math.max(3, Math.round(fWorkMin / 5));
+      if (fMode === 'work') fLeft = fWorkMin * 60;
+      render();
+    }));
   document.getElementById('fmWork').addEventListener('click', () => switchMode('work'));
   document.getElementById('fmBreak').addEventListener('click', () => switchMode('break'));
   document.getElementById('fToggle').addEventListener('click', toggleRun);
@@ -2965,7 +3181,14 @@ function render() {
       '</span></div>';
   }).join('');
 
+  const xp = totalXP(state);
+  const lvl = levelFor(xp);
   box.innerHTML =
+    '<div class="card xp-card" style="margin-bottom:14px"><div class="ring-wrap" style="background:none;border:0;box-shadow:none;padding:0;color:inherit">' +
+      '<div><div class="ring-num">' + lvl.current.name + '</div>' +
+      '<div style="color:var(--muted)">' + xp + ' XP' +
+      (lvl.next ? ' · ' + (lvl.next.xp - xp) + ' XP to ' + lvl.next.name : ' · top level!') + '</div></div></div>' +
+      '<div class="progress" style="margin-top:10px"><div style="width:' + lvl.pctToNext + '%"></div></div></div>' +
     '<div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">' +
       '<div class="stat"><b>' + stats.totalDone + '</b><span>tasks done (all time)</span></div>' +
       '<div class="stat"><b>' + weekTotal + '</b><span>done this week</span></div>' +
@@ -3335,8 +3558,12 @@ function render() {
 
   box.innerHTML =
     '<div class="card" style="margin-bottom:12px"><h2>🎨 Appearance</h2>' +
-      '<p style="color:var(--muted)">Current theme: <b>' + state.settings.theme + '</b></p>' +
-      '<button class="btn" data-theme-toggle>🌙 Toggle dark / light</button></div>' +
+      '<p style="color:var(--muted)">Auto = dark from 7 PM to 7 AM, light the rest of the day.</p>' +
+      '<div class="toolbar" style="margin:0"><select class="field" id="themeSel" style="flex:0 1 200px">' +
+        '<option value="light"' + (state.settings.theme === 'light' ? ' selected' : '') + '>☀️ Light</option>' +
+        '<option value="dark"' + (state.settings.theme === 'dark' ? ' selected' : '') + '>🌙 Dark</option>' +
+        '<option value="auto"' + (state.settings.theme === 'auto' ? ' selected' : '') + '>🌓 Auto (by time)</option>' +
+      '</select><button class="btn" data-theme-toggle>Toggle now</button></div></div>' +
 
     '<div class="card" style="margin-bottom:12px"><h2>🔔 Notifications</h2>' +
       '<p style="color:var(--muted)">Browser reminders need permission. In the Android app, alarms ring even when TYM is closed.</p>' +
@@ -3351,6 +3578,25 @@ function render() {
       '<p style="color:var(--muted)">Your data lives only on this device. Export a backup file regularly.</p>' +
       '<button class="btn" id="exportBtn">⬇ Export backup (JSON)</button> ' +
       '<label class="btn" style="display:inline-block">⬆ Import backup <input type="file" id="importFile" accept=".json" hidden></label></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>🛡 Automatic snapshots</h2>' +
+      '<p style="color:var(--muted)">TYM quietly saves one snapshot per day (last 3 kept). Restore one if something ever goes wrong.</p>' +
+      '<div id="snapList">' +
+      (readSnapshots().length
+        ? readSnapshots().slice().reverse().map(sn =>
+            '<div class="task"><div class="task-main"><div class="task-title">📸 ' + sn.day + '</div></div>' +
+            '<button class="btn" data-snap="' + sn.day + '">Restore</button></div>').join('')
+        : '<p style="color:var(--muted)">No snapshots yet — the first one is taken today.</p>') +
+      '</div></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>📆 Calendar export</h2>' +
+      '<p style="color:var(--muted)">Download your dated tasks as an .ics file and import it into Google Calendar (Settings → Import calendar there).</p>' +
+      '<button class="btn" id="icsBtn">⬇ Export tasks (.ics)</button></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>🌱 Sample day</h2>' +
+      '<p style="color:var(--muted)">New here? Load a small sample day to see TYM alive — remove it any time with one tap.</p>' +
+      '<button class="btn" id="sampleBtn">Load sample day</button> ' +
+      '<button class="btn" id="sampleDelBtn">Remove sample data</button></div>' +
 
     '<div class="card" style="margin-bottom:12px"><h2>📥 Import tasks from CSV</h2>' +
       '<p style="color:var(--muted)">Works with Todoist and TickTick exports — the title and due-date columns are picked up; other columns are ignored.</p>' +
@@ -3374,6 +3620,23 @@ function render() {
     saveState(state);
     render();
   });
+  document.getElementById('themeSel').addEventListener('change', e => {
+    state.settings.theme = e.target.value;
+    saveState(state);
+    applyTheme();
+    showToast('Theme: ' + e.target.value);
+  });
+  document.getElementById('icsBtn').addEventListener('click', () => {
+    const blob = new Blob([buildICS(state.tasks)], { type: 'text/calendar' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tym-tasks.ics';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Calendar file downloaded 📆');
+  });
+  document.getElementById('sampleBtn').addEventListener('click', loadSampleDay);
+  document.getElementById('sampleDelBtn').addEventListener('click', removeSampleDay);
   document.getElementById('exportBtn').addEventListener('click', exportBackup);
   document.getElementById('importFile').addEventListener('change', importBackup);
   document.getElementById('csvFile').addEventListener('change', importCSV);
@@ -3472,6 +3735,46 @@ function importCSV(e) {
     showToast('Imported ' + added + ' tasks 📥');
   };
   r.readAsText(file);
+}
+
+/* Snapshot restore (delegated — the list is re-drawn). */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-snap]');
+  if (!btn) return;
+  const sn = readSnapshots().find(x => x.day === btn.dataset.snap);
+  if (!sn) return;
+  if (!confirm('Restore the snapshot from ' + sn.day + '? Current data will be replaced.')) return;
+  state = parseState(sn.data);
+  saveState(state);
+  applyTheme();
+  render();
+  showToast('Snapshot restored 📸');
+});
+
+/* A tiny ready-made day so a new user sees TYM alive.
+   Everything sample carries the 'sample' tag for removal. */
+function loadSampleDay() {
+  const today = todayStr();
+  addTaskToState(state, { title: 'Pay the electricity bill', due: today, time: '18:00',
+    priority: 'high', listId: 'personal', reminders: [0, 60], tags: ['sample'] });
+  addTaskToState(state, { title: 'Revise Unit 3 — Operating Systems', due: today,
+    priority: 'med', listId: 'study', estMinutes: 50, tags: ['sample'],
+    subtasks: [{ title: 'Read notes' }, { title: 'Solve 5 previous questions' }] });
+  addTaskToState(state, { title: 'Evening walk 20 minutes', due: today,
+    priority: 'low', listId: 'personal', tags: ['sample'] });
+  addTaskToState(state, { title: 'Submit assignment', due: addDaysStr(today, 1),
+    priority: 'high', listId: 'study', tags: ['sample'] });
+  state.habits.push({ id: makeId(), name: '🌱 Read 10 pages', createdAt: Date.now() });
+  saveState(state);
+  render();
+  showToast('Sample day loaded 🌱 — see the Today screen');
+}
+function removeSampleDay() {
+  state.tasks = state.tasks.filter(t => !(t.tags || []).includes('sample'));
+  state.habits = state.habits.filter(h => !h.name.startsWith('🌱'));
+  saveState(state);
+  render();
+  showToast('Sample data removed');
 }
 
 /* List manager clicks (delegated). */

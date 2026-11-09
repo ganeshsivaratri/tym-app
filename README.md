@@ -21,7 +21,11 @@ site for this repo.
 - Habits with streaks, daily routines, Review with a year heatmap
 - Study: subjects & chapters with spaced-revision tasks
 - Exams: countdowns + one-tap revision plans · Weekly timetable
-- Dark mode, offline PWA, backup export/import, CSV import
+- Dark mode (plus Auto by time of day), offline PWA, backup export/import, CSV import
+- v2: "Move all overdue to today", grouped All view (Overdue/Today/Tomorrow/Week/Later),
+  task search inside the command palette, focus length presets (15/25/50),
+  swipe gestures (right = done, left = delete), automatic daily snapshots with
+  restore, .ics calendar export, XP & levels, and a one-tap sample day
 
 ## 📱 Android
 The `android-app/` project (in the source zip) wraps the app with
