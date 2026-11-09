@@ -1051,7 +1051,8 @@ const TYM_SCREENS = [
   { id: 'exams',     name: 'Exams',     icon: '⏳', file: 'exams.html',     group: 'Students' },
   { id: 'timetable', name: 'Timetable', icon: '🏫', file: 'timetable.html', group: 'Students' },
   { id: 'completed', name: 'Completed', icon: '✅', file: 'completed.html', group: 'More' },
-  { id: 'settings',  name: 'Settings',  icon: '⚙️', file: 'settings.html',  group: 'More' }
+  { id: 'settings',  name: 'Settings',  icon: '⚙️', file: 'settings.html',  group: 'More' },
+  { id: 'guide',     name: 'Guide',     icon: '❓', file: 'guide.html',     group: 'More' }
 ];
 
 /* The five screens shown in the phone bottom bar. */
@@ -3587,6 +3588,9 @@ function render() {
   }).join('');
 
   box.innerHTML =
+    '<div class="card" style="margin-bottom:12px"><h2>❓ New here?</h2>' +
+      '<p style="color:var(--muted)">Every feature in simple words, with examples.</p>' +
+      '<a class="btn btn-primary" href="guide.html" data-goto="guide.html">Open the Guide →</a></div>' +
     '<div class="card" style="margin-bottom:12px"><h2>🎨 Appearance</h2>' +
       '<p style="color:var(--muted)">Auto = dark from 7 PM to 7 AM, light the rest of the day.</p>' +
       '<div class="toolbar" style="margin:0"><select class="field" id="themeSel" style="flex:0 1 200px">' +
@@ -3639,7 +3643,8 @@ function render() {
 
     '<div class="card"><h2>⚠️ Danger zone</h2>' +
       '<p style="color:var(--muted)">Erase every task, habit and setting on this device. Export a backup first if unsure.</p>' +
-      '<button class="btn" id="eraseBtn" style="border-color:var(--high);color:var(--high)">Erase everything</button></div>';
+      '<button class="btn" id="eraseBtn" style="border-color:var(--high);color:var(--high)">Erase everything</button></div>' +
+    '<p style="text-align:center;color:var(--muted);font-size:12.5px;margin:14px 0 4px">TYM — Track Your Mind · App version <b>v2.2</b> (quick-add fix + Guide)</p>';
 
   updateNotifyState();
   document.getElementById('notifyBtn').addEventListener('click', enableNotifications);
@@ -3842,6 +3847,87 @@ __tymRegister('settings', render);
 
 })();
 </script>
+<script>
+/* ===== screen: guide ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · guide.js
+   What this file does: the Guide screen. Every feature in
+   simple words, one small example each, and a button that
+   opens that feature. Written for a first-time user.
+   ============================================================ */
+
+const GUIDE = [
+  { icon: '🧠', name: 'How TYM works', file: null,
+    what: '1. You write the task. 2. The app reminds you at the time. 3. You do it.',
+    ex: 'That is all. The app is your memory — you only do the work.' },
+  { icon: '☀️', name: 'Today', file: 'index.html',
+    what: 'Your day on one screen: today\'s tasks, your Top 3, and your progress ring.',
+    ex: 'Open it every morning. You will know what today is.' },
+  { icon: '✍️', name: 'Quick add', file: 'index.html',
+    what: 'Type the task in simple words. The app understands date, time and priority.',
+    ex: 'Type: Pay fees tomorrow 5pm !high — date, time, priority set automatically.' },
+  { icon: '📌', name: 'Top 3 (My Day)', file: 'index.html',
+    what: 'Pin only 3 tasks. These are today\'s most important work.',
+    ex: 'Exam week: 1) Revise Unit 3  2) Print hall ticket  3) Sleep early.' },
+  { icon: '⏰', name: 'Reminder + Alarm', file: 'index.html',
+    what: 'Open a task → Edit → Reminders. At the time, the app rings like an alarm.',
+    ex: 'Task "Print hall ticket" at 3 PM — the app rings at 3 PM. You cannot forget.' },
+  { icon: '🔁', name: 'Repeat tasks', file: 'index.html',
+    what: 'In Edit → Repeat: daily, weekdays, weekly. The task comes back itself.',
+    ex: '"Pay hostel fee" every month — no need to write it again.' },
+  { icon: '🗂', name: 'All Tasks', file: 'all.html',
+    what: 'Every open task, in groups: Overdue, Today, Tomorrow, This week, Later.',
+    ex: 'Too many tasks in your head? See all of them here, in order.' },
+  { icon: '📅', name: 'Calendar', file: 'calendar.html',
+    what: 'The whole month. Drag a task to another day to change its date.',
+    ex: 'Exam postponed? Drag the revision task to the new day.' },
+  { icon: '🕐', name: 'Plan My Day (Timeline)', file: 'timeline.html',
+    what: 'Press "Plan My Day" — the app arranges today\'s tasks hour by hour.',
+    ex: 'No plan for today? One press — full day plan ready.' },
+  { icon: '🍅', name: 'Focus', file: 'focus.html',
+    what: 'Pick a task, press Start. 25 minutes only work — phone away. The app counts your focus time.',
+    ex: 'Studying Physics? Focus 25 min × 4 = 100 minutes of real study, counted.' },
+  { icon: '🔥', name: 'Habits', file: 'habits.html',
+    what: 'Small daily things. Tick every day — your streak grows. Do not break the streak.',
+    ex: '"Read 10 pages" — tick daily. Day 5 streak feels too good to break.' },
+  { icon: '📚', name: 'Study', file: 'study.html',
+    what: 'Add subject + chapters. Finish a chapter — after 3 days the app reminds you: revise it.',
+    ex: 'OS Unit 3 done today → on day 3, a "Revise Unit 3" task comes itself.' },
+  { icon: '⏳', name: 'Exams', file: 'exams.html',
+    what: 'Add the exam date. The app shows days left. Press "Create revision plan" — revision tasks come for 7, 3 and 1 days before.',
+    ex: 'Physics exam 15 Nov → tasks on 8, 12 and 14 Nov, automatically.' },
+  { icon: '📊', name: 'Review + XP', file: 'review.html',
+    what: 'See your week: tasks done, focus minutes, habit dots, and your XP level.',
+    ex: 'XP grows with every finished task: Starter → Builder → Legend.' },
+  { icon: '👉', name: 'Swipe', file: null,
+    what: 'On any task card: swipe right = done. Swipe left = delete (Undo comes, do not worry).',
+    ex: 'Fast way to clear finished tasks on the phone.' },
+  { icon: '💾', name: 'Backup (important)', file: 'settings.html',
+    what: 'Settings → Export backup saves all your data in one file. Do it every week.',
+    ex: 'Phone changed? Import the file — all your tasks come back.' },
+  { icon: '🌱', name: 'Sample day', file: 'settings.html',
+    what: 'Settings → "Load sample day" fills the app with demo tasks, so you can try every screen.',
+    ex: 'Best way to learn the app in 2 minutes. Remove it any time in Settings.' }
+];
+
+function render() {
+  const box = document.getElementById('screenContent');
+  box.innerHTML = '<div class="stagger">' + GUIDE.map(g =>
+    '<div class="card" style="margin-bottom:12px">' +
+      '<h2>' + g.icon + ' ' + g.name + '</h2>' +
+      '<p style="margin:6px 0">' + g.what + '</p>' +
+      '<p style="color:var(--muted);margin:6px 0">💡 ' + g.ex + '</p>' +
+      (g.file ? '<a class="btn" href="' + g.file + '" data-goto="' + g.file + '">Open →</a>' : '') +
+    '</div>').join('') + '</div>';
+}
+__tymRegister('guide', render);
+
+__tymRegister('guide', render);
+
+})();
+</script>
 
 <script>
 /* ===== TYM single-file router (navigation) ===== */
@@ -3859,7 +3945,8 @@ const TYM_META = {
   exams:    ['\u23F3 Exams', 'Countdowns and one-tap revision plans.'],
   timetable:['\uD83C\uDFEB Timetable', 'Your weekly class schedule.'],
   completed:['\u2705 Completed', 'Everything you have finished. Well done.'],
-  settings: ['\u2699\uFE0F Settings', 'Theme, lists, notifications, backup and imports.']
+  settings: ['\u2699\uFE0F Settings', 'Theme, lists, notifications, backup and imports.'],
+  guide:    ['\u2753 Guide', 'Every feature, in simple words — with examples.']
 };
 function tymActivate(id) {
   if (!TYM_META[id]) id = 'today';
