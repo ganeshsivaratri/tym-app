@@ -488,6 +488,21 @@ h1{font-size:32px;font-weight:850}
   .quick-add .btn{flex:1 1 auto}
 }
 
+/* ============================================================
+   17. QUICK-ADD STRUCTURE (v2.1)
+   Buttons live in their own row (.qa-actions). On desktop the
+   wrapper disappears (display:contents) so the single row
+   stays. On phones the form becomes a column: input full
+   width on top, buttons in a row below — no flex squeezing.
+   ============================================================ */
+.qa-actions{display:contents}
+@media (max-width:820px){
+  .quick-add{flex-direction:column;align-items:stretch}
+  .quick-add input{flex:none;width:100%}
+  .qa-actions{display:flex;gap:8px}
+  .qa-actions .btn{flex:1}
+}
+
 </style>
 </head>
 <body data-screen="today">
