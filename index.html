@@ -473,6 +473,21 @@ h1{font-size:32px;font-weight:850}
 .task{touch-action:pan-y}
 .xp-card{background:linear-gradient(120deg, rgba(246,183,60,.16), rgba(245,158,11,.05));border-color:rgba(246,183,60,.45)}
 
+/* ============================================================
+   16. PHONE QUICK-ADD FIX (user report 2026-11-09)
+   On a phone the quick-add row did not fit: the buttons took
+   the whole width and the input was pushed off the edge, so
+   typed text was invisible. Now the input takes the full
+   first row and the buttons share the row below it.
+   ============================================================ */
+.quick-add input{min-width:0}
+.habit-add input,.tt-add input,.tt-add select,.exam-add input,.toolbar .field{min-width:0}
+@media (max-width:820px){
+  .quick-add{flex-wrap:wrap}
+  .quick-add input{flex:1 1 100%}
+  .quick-add .btn{flex:1 1 auto}
+}
+
 </style>
 </head>
 <body data-screen="today">
