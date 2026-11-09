@@ -1,0 +1,3570 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today — TYM · Track Your Mind</title>
+<meta name="description" content="TYM (Track Your Mind) — Today screen.">
+<meta name="theme-color" content="#17171a">
+<style>
+/* ============================================================
+   TYM — Track Your Mind · styles.css
+   What this file does: the SHARED DESIGN SYSTEM for every
+   screen — colours, layout, cards, buttons, motion.
+   One place controls the whole app's look.
+   Sections: 1 theme · 2 base · 3 layout/nav · 4 components
+             5 screens · 6 motion · 7 small screens
+   ============================================================ */
+
+/* ---------- 1. Theme colours ---------- */
+:root{
+  --bg:#f4f5fb;
+  --bg-glow:radial-gradient(900px 500px at 85% -10%, rgba(109,92,255,.18), transparent 60%),
+            radial-gradient(700px 420px at -10% 110%, rgba(0,194,255,.12), transparent 60%);
+  --panel:#ffffff;
+  --panel-soft:#eef0f8;
+  --ink:#191b26;
+  --muted:#6d7288;
+  --line:#e4e6f2;
+  --accent:#6d5cff;
+  --accent-2:#00c2ff;
+  --accent-grad:linear-gradient(120deg, var(--accent), var(--accent-2));
+  --high:#ef4444;
+  --med:#f59e0b;
+  --low:#10b981;
+  --radius:16px;
+  --shadow:0 10px 30px rgba(25,27,38,.08);
+  --shadow-lift:0 18px 40px rgba(25,27,38,.16);
+  --spring:cubic-bezier(.22,1.4,.36,1);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+[data-theme="dark"]{
+  --bg:#0e1016;
+  --bg-glow:radial-gradient(900px 500px at 85% -10%, rgba(109,92,255,.22), transparent 60%),
+            radial-gradient(700px 420px at -10% 110%, rgba(0,194,255,.10), transparent 60%);
+  --panel:#171a24;
+  --panel-soft:#1f2331;
+  --ink:#eef0fa;
+  --muted:#9aa0b8;
+  --line:#262b3d;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --shadow-lift:0 18px 40px rgba(0,0,0,.5);
+}
+
+/* ---------- 2. Base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg-glow), var(--bg);
+  background-attachment:fixed;
+  min-height:100vh;
+}
+button{font:inherit;cursor:pointer;color:inherit}
+input,select,textarea{font:inherit;color:var(--ink)}
+a{color:var(--accent)}
+h1{font-size:30px;margin:0;letter-spacing:-.02em}
+h2{font-size:19px;margin:0 0 10px}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- 3. Layout + navigation ---------- */
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:264px;flex:0 0 264px;position:sticky;top:0;height:100vh;overflow:auto;
+  padding:22px 14px;display:flex;flex-direction:column;gap:20px;
+  background:color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter:blur(14px);
+  border-right:1px solid var(--line);
+}
+.brand{font-size:23px;font-weight:850;letter-spacing:-.02em}
+.brand .brand-mark{
+  display:inline-grid;place-items:center;width:34px;height:34px;margin-right:8px;
+  border-radius:10px;background:var(--accent-grad);color:#fff;font-size:18px;
+  vertical-align:-8px;box-shadow:var(--shadow);
+}
+.brand small{display:block;margin-top:3px;font-size:10.5px;font-weight:700;
+  letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+.nav-group h4{margin:0 0 6px;font-size:10.5px;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--muted)}
+.nav-item{
+  width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  background:none;border:0;padding:10px 11px;border-radius:12px;text-align:left;
+  transition:background .18s var(--ease), transform .18s var(--ease);
+}
+.nav-item:hover{background:var(--panel-soft);transform:translateX(2px)}
+.nav-item.active{background:var(--accent-grad);color:#fff;box-shadow:var(--shadow)}
+.nav-item.active .badge{background:rgba(255,255,255,.25);color:#fff;border-color:transparent}
+.badge{background:var(--panel-soft);border:1px solid var(--line);color:var(--muted);
+  font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.main{flex:1;width:100%;max-width:920px;margin:0 auto;padding:28px 30px 90px}
+.bottombar{display:none}
+
+/* ---------- 4. Shared components ---------- */
+.btn{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  border-radius:12px;padding:10px 16px;font-weight:650;
+  transition:transform .15s var(--ease), box-shadow .15s var(--ease), border-color .15s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:var(--accent)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-primary{background:var(--accent-grad);color:#fff;border:0;box-shadow:var(--shadow)}
+.btn-primary:hover{box-shadow:var(--shadow-lift)}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:18px;
+}
+.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;
+  border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted)}
+.prio-high{color:var(--high);border-color:var(--high)}
+.prio-med{color:var(--med);border-color:var(--med)}
+.prio-low{color:var(--low);border-color:var(--low)}
+.progress{height:7px;background:var(--panel-soft);border-radius:99px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent-grad);border-radius:99px;
+  transition:width .5s var(--spring)}
+.ring{transform:rotate(-90deg)}
+.ring .ring-bg{stroke:var(--panel-soft)}
+.ring .ring-fg{stroke:url(#ringGrad);stroke-linecap:round;
+  transition:stroke-dashoffset .7s var(--spring)}
+.field{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);transition:border-color .15s, box-shadow .15s}
+.field:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(109,92,255,.18)}
+
+/* Task card (used by Today / All / list screens) */
+.task{
+  display:flex;gap:12px;align-items:flex-start;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:14px 15px;margin-bottom:10px;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease);
+}
+.task:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+.task.overdue{border-left:4px solid var(--high)}
+.task.done{opacity:.6}
+.task-title{font-weight:650;font-size:15.5px}
+.task.done .task-title{text-decoration:line-through}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.check{
+  width:22px;height:22px;flex:0 0 auto;margin-top:1px;appearance:none;cursor:pointer;
+  border:2px solid var(--line);border-radius:50%;display:grid;place-items:center;
+  transition:background .2s var(--spring), border-color .2s, transform .15s;
+}
+.check:hover{border-color:var(--accent);transform:scale(1.1)}
+.check:checked{background:var(--accent-grad);border-color:transparent}
+.check:checked::after{content:"✓";color:#fff;font-size:13px;font-weight:800;
+  animation:pop .25s var(--spring)}
+.icon-btn{background:none;border:0;font-size:15px;padding:5px;border-radius:9px}
+.icon-btn:hover{background:var(--panel-soft)}
+
+/* Modal (task editor, dialogs) */
+.modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  padding:16px;background:rgba(10,10,22,.48);backdrop-filter:blur(4px)}
+.modal.open{display:flex}
+.modal-card{background:var(--panel);border-radius:20px;width:100%;max-width:540px;
+  max-height:92vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lift);
+  animation:rise .3s var(--spring)}
+.modal-card label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:13px 0 5px}
+.row{display:flex;gap:10px}.row>div{flex:1}
+
+/* Toast (messages + Undo) */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,80px);z-index:80;
+  background:var(--ink);color:var(--bg);border-radius:12px;padding:11px 16px;
+  display:flex;gap:14px;align-items:center;box-shadow:var(--shadow-lift);
+  opacity:0;pointer-events:none;transition:transform .35s var(--spring), opacity .25s;
+}
+.toast.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.toast button{background:none;border:0;color:var(--accent-2);font-weight:800}
+
+/* Empty state */
+.empty{text-align:center;color:var(--muted);padding:54px 16px}
+.empty .empty-art{font-size:44px;margin-bottom:10px;animation:floaty 3.2s ease-in-out infinite}
+
+/* ---------- 5. Screen-specific bits ---------- */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:14px;text-align:center}
+.stat b{display:block;font-size:21px}
+.stat span{font-size:11px;color:var(--muted)}
+.greeting{color:var(--muted);margin:4px 0 20px;font-size:15px}
+.focus-banner{
+  border-radius:20px;padding:20px;color:#fff;background:var(--accent-grad);
+  box-shadow:var(--shadow-lift);margin-bottom:18px;
+}
+.focus-banner h2{color:#fff;margin-bottom:4px}
+
+/* ---------- 6. Motion ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.main{animation:pageIn .35s var(--ease)}
+.stagger>*{animation:rise .45s var(--spring) backwards}
+.stagger>*:nth-child(2){animation-delay:.05s}
+.stagger>*:nth-child(3){animation-delay:.1s}
+.stagger>*:nth-child(4){animation-delay:.15s}
+.stagger>*:nth-child(5){animation-delay:.2s}
+.stagger>*:nth-child(n+6){animation-delay:.25s}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+}
+
+/* ---------- 7. Small screens: sidebar becomes a bottom bar ---------- */
+@media (max-width:820px){
+  .sidebar{display:none}
+  .main{padding:20px 15px 110px}
+  .bottombar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:color-mix(in srgb, var(--panel) 92%, transparent);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+    justify-content:space-around;
+  }
+  .bottombar a{
+    display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;
+    color:var(--muted);text-decoration:none;font-size:10px;font-weight:650;padding:4px 0;
+  }
+  .bottombar a .bb-icon{font-size:19px}
+  .bottombar a.active{color:var(--accent)}
+  h1{font-size:25px}
+}
+
+/* ---------- 8. Stage 1: quick add, subtasks, screen bits ---------- */
+.quick{display:flex;gap:8px;margin:0 0 18px}
+.quick input{flex:1;padding:13px 15px;font-size:15px}
+.task-main{flex:1;min-width:0}
+.task-notes{color:var(--muted);font-size:13.5px;margin-top:2px;word-break:break-word}
+.task-actions{display:flex;flex-direction:column;gap:2px}
+.subs{margin-top:9px;display:flex;flex-direction:column;gap:4px}
+.sub{font-size:13.5px;display:flex;gap:7px;align-items:center;cursor:pointer}
+.sub input{accent-color:var(--accent);width:15px;height:15px}
+.sub-done{text-decoration:line-through;color:var(--muted)}
+.checkline{display:flex !important;align-items:center;gap:8px;font-size:14px !important;
+  color:var(--ink) !important;cursor:pointer}
+.checkline input{width:17px;height:17px;accent-color:var(--accent)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.section-title{font-size:13px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--muted);margin:20px 0 10px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .field{flex:1;min-width:150px}
+.toolbar select.field{flex:0 1 190px}
+.ring-wrap{display:flex;align-items:center;gap:16px}
+.ring-num{font-size:26px;font-weight:850}
+.focus-banner .pill{border-color:rgba(255,255,255,.5);color:#fff}
+.focus-banner .fb-task{font-size:17px;font-weight:700;margin:3px 0}
+
+/* ---------- 9. Reminders + alarm + editor extras ---------- */
+.remind-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
+.attach-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.attach-img{width:52px;height:52px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.attach-chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel-soft);
+  border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 4px;font-size:12px}
+.attach-chip img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+.attach-chip button{background:none;border:0;font-weight:800}
+.alarm-view{
+  position:fixed;inset:0;z-index:100;display:none;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;text-align:center;padding:24px;color:#fff;
+  background:linear-gradient(140deg,#6d5cff,#00c2ff);
+}
+.alarm-view.show{display:flex;animation:alarmPulse 1s ease-in-out infinite}
+.alarm-emoji{font-size:76px;animation:floaty 1.2s ease-in-out infinite}
+.alarm-title{font-size:30px;font-weight:850;letter-spacing:-.01em;max-width:640px}
+.alarm-sub{font-size:16px;opacity:.92}
+.alarm-actions{display:flex;gap:10px;margin-top:14px}
+.alarm-actions .btn{font-size:16px;padding:13px 22px}
+@keyframes alarmPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
+
+/* ---------- 10. Calendar, timeline, focus ---------- */
+.cal-head{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-week div{text-align:center;font-size:11px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);padding:4px 0}
+.cal-cell{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  min-height:64px;padding:7px;text-align:left;display:flex;flex-direction:column;gap:3px;
+  transition:transform .15s var(--ease), border-color .15s, box-shadow .15s}
+.cal-cell:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow)}
+.cal-blank{background:transparent;border:0}
+.cal-today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(109,92,255,.22)}
+.cal-sel{background:var(--accent-grad);color:#fff}
+.cal-sel .cal-dots{color:#fff}
+.cal-num{font-weight:800;font-size:14px}
+.cal-dots{color:var(--accent);font-size:8px;letter-spacing:2px}
+.cal-count{font-size:11px;font-weight:800;letter-spacing:0;margin-left:4px}
+.tl-row{display:flex;gap:12px;border-bottom:1px dashed var(--line);padding:8px 0}
+.tl-row:last-child{border-bottom:0}
+.tl-hour{flex:0 0 52px;font-weight:800;color:var(--muted);font-size:13px;padding-top:3px}
+.tl-slot{flex:1}
+.tl-item{background:var(--panel-soft);border-left:4px solid var(--accent);
+  border-radius:9px;padding:7px 10px;margin-bottom:5px;font-size:14px}
+.tl-item.prio-border-high{border-left-color:var(--high)}
+.tl-item.prio-border-med{border-left-color:var(--med)}
+.tl-item.prio-border-low{border-left-color:var(--low)}
+.tl-free{color:var(--muted);font-size:12.5px}
+.focus-wrap{text-align:center;padding:34px 20px}
+.focus-modes{display:flex;gap:8px;justify-content:center}
+.focus-clock{font-size:84px;font-weight:850;letter-spacing:-.03em;margin:16px 0 8px;
+  background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.focus-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ---------- 11. Board, matrix, palette ---------- */
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start}
+.board-col{background:var(--panel-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px;min-height:180px}
+.board-col.dragover{border-color:var(--accent);box-shadow:0 0 0 3px rgba(109,92,255,.2)}
+.board-col h3{margin:2px 0 10px;font-size:15px}
+.board-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow);cursor:grab}
+.board-card:active{cursor:grabbing}
+.board-card-title{font-weight:650;font-size:14.5px}
+.board-empty{color:var(--muted);font-size:13px;text-align:center;padding:14px 0}
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.matrix-cell{background:var(--panel-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:12px;min-height:150px}
+.matrix-cell h3{margin:2px 0 10px;font-size:15px}
+.palette-card{max-width:480px;padding:16px}
+.pal-item{display:block;width:100%;text-align:left;background:none;border:0;
+  padding:11px 12px;border-radius:10px;font-size:15px}
+.pal-item:hover{background:var(--panel-soft)}
+.pal-hint{color:var(--muted);font-size:12px;margin:10px 2px 0}
+@media (max-width:820px){ .board{grid-template-columns:1fr} .matrix{grid-template-columns:1fr} }
+
+/* ---------- 12. Habits + review ---------- */
+.habit-dots{display:inline-flex;gap:4px;align-items:center;margin-top:6px}
+.habit-dot{width:11px;height:11px;border-radius:4px;background:var(--panel-soft);
+  border:1px solid var(--line);display:inline-block}
+.habit-dot.on{background:var(--accent-grad);border-color:transparent}
+.habit-week{font-size:11px;color:var(--muted);margin-left:6px}
+.bars{display:flex;gap:10px;align-items:flex-end;height:130px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.bar{width:70%;max-width:44px;border-radius:8px 8px 3px 3px;background:var(--accent-grad);
+  transition:height .6s var(--spring)}
+.bar-col span{font-size:11px;color:var(--muted)}
+.bar-col b{font-size:12px}
+.heat-wrap{display:flex;flex-wrap:wrap;gap:3px}
+.heat{width:11px;height:11px;border-radius:3px;background:var(--panel-soft);border:1px solid var(--line)}
+.heat-1{background:rgba(109,92,255,.3)}.heat-2{background:rgba(109,92,255,.55)}
+.heat-3{background:rgba(109,92,255,.8)}.heat-4{background:var(--accent)}
+.habit-review{margin-bottom:10px}
+.habit-review-name{font-weight:650;font-size:14px;display:block;margin-bottom:2px}
+
+/* ---------- 13. Exams + timetable ---------- */
+.exam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.exam-card{text-align:left}
+.exam-days{font-size:42px;font-weight:850;line-height:1;
+  background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.exam-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:800}
+.tt-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;overflow-x:auto}
+.tt-col{background:var(--panel-soft);border:1px solid var(--line);border-radius:12px;padding:9px;min-width:118px}
+.tt-col h4{margin:0 0 8px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.tt-today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(109,92,255,.2)}
+.tt-block{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:9px;padding:7px 9px;margin-bottom:7px;font-size:12.5px}
+.tt-block span{color:var(--muted)}
+
+/* ---------- 14. Day Complete + print ---------- */
+.day-complete{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;
+  color:#fff;background:linear-gradient(140deg,#6d5cff,#00c2ff);animation:rise .4s var(--spring)}
+.dc-emoji{font-size:80px;animation:floaty 1.4s ease-in-out infinite}
+.dc-title{font-size:32px;font-weight:850}
+.day-complete p{opacity:.94;max-width:420px}
+@media print{
+  .sidebar,.bottombar,.quick,.toast,.modal{display:none !important}
+  .main{max-width:100%;padding:10px}
+  body{background:#fff}
+  .task,.card{box-shadow:none;break-inside:avoid}
+}
+
+/* ============================================================
+   15. REFERENCE RESTYLE (user's design references, 2026-11-09)
+   Cream ground · big black display type · white soft cards ·
+   black as the strong accent · warm yellow as the highlight ·
+   pills everywhere · floating black bottom nav.
+   Features unchanged — this section only re-skins.
+   ============================================================ */
+:root{
+  --bg:#f2eee5;
+  --bg-glow:radial-gradient(900px 500px at 85% -10%, rgba(246,183,60,.20), transparent 60%),
+            radial-gradient(760px 460px at -10% 110%, rgba(46,125,107,.10), transparent 60%);
+  --panel:#ffffff;
+  --panel-soft:#eae5d9;
+  --ink:#17171a;
+  --muted:#7a766c;
+  --line:#e3ddcf;
+  --accent:#17171a;
+  --accent-2:#f6b73c;
+  --accent-grad:linear-gradient(120deg, #f6b73c, #f59e0b);
+  --radius:22px;
+  --shadow:0 10px 26px rgba(60,52,30,.09);
+  --shadow-lift:0 18px 38px rgba(60,52,30,.16);
+}
+[data-theme="dark"]{
+  --bg:#100f12;
+  --bg-glow:radial-gradient(900px 500px at 85% -10%, rgba(246,183,60,.13), transparent 60%),
+            radial-gradient(760px 460px at -10% 110%, rgba(46,125,107,.08), transparent 60%);
+  --panel:#1b1a1f;
+  --panel-soft:#26242c;
+  --ink:#f2f0ea;
+  --muted:#a49f93;
+  --line:#2e2c34;
+  --accent:#f6b73c;
+  --shadow:0 10px 26px rgba(0,0,0,.4);
+  --shadow-lift:0 18px 38px rgba(0,0,0,.55);
+}
+h1{font-size:32px;font-weight:850}
+.brand .brand-mark{background:#17171a;color:#f6b73c}
+[data-theme="dark"] .brand .brand-mark{background:#f6b73c;color:#17171a}
+.nav-item.active{background:#17171a;color:#fff}
+[data-theme="dark"] .nav-item.active{background:#f6b73c;color:#17171a}
+.btn-primary{background:#17171a;color:#fff;box-shadow:var(--shadow)}
+.btn-primary:hover{border-color:#17171a}
+[data-theme="dark"] .btn-primary{background:#f6b73c;color:#17171a}
+.btn:hover{border-color:#17171a}
+.field:focus{border-color:#17171a;box-shadow:0 0 0 3px rgba(246,183,60,.35)}
+[data-theme="dark"] .field:focus{border-color:#f6b73c}
+.check:checked{background:#17171a}
+[data-theme="dark"] .check:checked{background:#f6b73c}
+.check:checked::after{color:#f6b73c}
+[data-theme="dark"] .check:checked::after{color:#17171a}
+::selection{background:#f6b73c;color:#17171a}
+
+/* Today: black progress card + black Top-3 banner (like the refs) */
+.ring-wrap{background:#17171a !important;color:#fff;border-color:#17171a}
+.ring-wrap .ring-bg{stroke:#2d2d33}
+.ring-wrap div[style]{color:#b9b4a8 !important}
+.focus-banner{background:#17171a;box-shadow:var(--shadow-lift)}
+.focus-banner h2{color:#f6b73c}
+
+/* Calendar: black selected day, yellow today ring */
+.cal-sel{background:#17171a;color:#fff}
+.cal-sel .cal-dots{color:#f6b73c}
+.cal-today{border-color:#f6b73c;box-shadow:0 0 0 2px rgba(246,183,60,.4)}
+.cal-dots{color:#d99a16}
+
+/* Review heatmap in amber */
+.heat-1{background:rgba(246,183,60,.3)}.heat-2{background:rgba(246,183,60,.55)}
+.heat-3{background:rgba(245,158,11,.8)}.heat-4{background:#d99a16}
+.habit-dot.on{background:var(--accent-grad)}
+
+/* Alarm + day-complete: black stage, yellow accents */
+.alarm-view{background:#17171a}
+.alarm-title{color:#fff}
+.alarm-sub{color:#f6b73c}
+.day-complete{background:#17171a}
+.dc-title{color:#f6b73c}
+
+/* Focus clock + exam numbers keep the warm gradient */
+.focus-clock{background:var(--accent-grad);-webkit-background-clip:text;background-clip:text}
+.exam-days{background:var(--accent-grad);-webkit-background-clip:text;background-clip:text}
+
+/* Floating black pill bottom nav (phone), like the references */
+@media (max-width:820px){
+  .bottombar{
+    left:12px;right:12px;bottom:12px;border-radius:999px;border:0;
+    background:#17171a;box-shadow:0 16px 34px rgba(20,18,10,.35);
+    padding:8px 6px;
+  }
+  .bottombar a{color:#a9a49a;border-radius:999px;padding:6px 0}
+  .bottombar a.active{color:#17171a;background:#f6b73c}
+  .main{padding-bottom:120px}
+}
+
+</style>
+</head>
+<body data-screen="today">
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">🧠</span>TYM<small>Track Your Mind</small></div>
+    <nav id="sidebarNav"></nav>
+    <div class="side-foot">
+      <button class="btn" data-theme-toggle>🌙 Dark / Light</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <h1 id="screenTitle">☀️ Today</h1>
+    <p class="greeting" id="greetingLine"></p>
+    <div class="quick" id="quickBar">
+      <input class="field" id="quickInput" type="text" placeholder="Quick add — try: Pay fees tomorrow 5pm !high #college">
+      <button class="btn btn-primary" id="quickAddBtn">Add</button>
+      <button class="btn" id="voiceBtn" title="Speak your task">🎙</button>
+      <button class="btn" id="newTaskBtn">＋ Full Task</button>
+      <button class="btn" id="printBtn" title="Print my day">🖨</button>
+    </div>
+    <div id="allToolbar" style="display:none"><div class="toolbar">
+      <input class="field" id="searchInput" type="search" placeholder="🔍 Search tasks…">
+      <select class="field" id="sortSel">
+        <option value="due">Sort: Due date</option>
+        <option value="priority">Sort: Priority</option>
+        <option value="created">Sort: Newest</option>
+        <option value="manual">Sort: My order (drag)</option>
+      </select>
+      <button class="btn btn-primary" id="newTaskBtnAll">＋ New Task</button>
+    </div>
+    <div class="toolbar" id="listChips"></div>
+    </div>
+    <div id="screenContent"></div>
+  </main>
+</div>
+
+<nav class="bottombar" id="bottomBar"></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   TYM — Track Your Mind · data.js
+   What this file does: holds DEFAULT DATA only — the starter
+   lists and templates a fresh app begins with.
+   No logic lives here. Logic that uses this data sits in the
+   screen files and in store.js.
+   ============================================================ */
+
+/* The three lists every new user starts with.
+   The user can rename, recolour, add and delete lists later. */
+const DEFAULT_LISTS = [
+  { id: 'personal', name: 'Personal', color: '#6d5cff' },
+  { id: 'work',     name: 'Work',     color: '#0ea5e9' },
+  { id: 'study',    name: 'Study',    color: '#f59e0b' }
+];
+
+/* A ready-made morning routine. Routines reset fresh every day
+   (built in Stage 5 — Habits screen). */
+const ROUTINE_TEMPLATES = [
+  {
+    id: 'morning',
+    name: 'Morning Routine',
+    items: ['Wake up', 'Drink water', 'Exercise / walk', 'Shower', 'Plan Top 3 for today']
+  },
+  {
+    id: 'night',
+    name: 'Night Routine',
+    items: ['Review today', 'Move unfinished tasks', 'Set tomorrow Top 3', 'No phone 30 min', 'Sleep on time']
+  }
+];
+
+/* Starter habits a user can pick from (Stage 5). */
+const HABIT_IDEAS = ['Read 10 pages', 'Exercise', 'Meditate 5 min', 'No sugar', 'Study 1 hour', 'Write journal'];
+
+/* Make the defaults available to the Node tests. */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { DEFAULT_LISTS, ROUTINE_TEMPLATES, HABIT_IDEAS };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · store.js
+   What this file does: owns the APP STATE — one object that
+   holds every task, list, habit and setting.
+   It loads the state when the app opens and saves it after
+   every change, using the browser's localStorage.
+   Data never leaves the device. No server, no login.
+   ============================================================ */
+
+/* The name under which the state is saved in localStorage.
+   If the state shape ever changes in a big way, bump v1 → v2
+   and write a migration below. */
+const TYM_STORAGE_KEY = 'tym-state-v1';
+
+/* ---------- create a fresh, empty state ---------- */
+function createDefaultState() {
+  return {
+    tasks: [],        // every task object (shape defined in DESIGN.md)
+    lists: (typeof DEFAULT_LISTS !== 'undefined')
+      ? DEFAULT_LISTS.map(l => ({ id: l.id, name: l.name, color: l.color }))
+      : [],
+    habits: [],       // Stage 5
+    routines: [],     // Stage 5
+    subjects: [],     // Stage 6
+    timetable: [],    // Stage 6
+    focusLog: [],     // Pomodoro sessions: { date, minutes }
+    completions: {},  // { 'YYYY-MM-DD': how many tasks finished that day }
+    templates: [],    // saved task templates (Stage 4)
+    habitLog: {},     // { habitId: { 'YYYY-MM-DD': true } } (Stage 5)
+    routineLog: {},   // { 'YYYY-MM-DD': { routineId: [done item indexes] } } (Stage 5)
+    exams: [],        // { id, subject, date } (Stage 6)
+    fired: {},        // reminder keys already rung: { 'taskId@ms': true }
+    snoozed: {},      // { taskId: untilMs } after a snooze
+    dayDoneCelebrated: {}, // { "YYYY-MM-DD": true } Day Complete shown (Stage 7)
+    settings: { theme: 'light', sortDefault: 'due' }
+  };
+}
+
+/* ---------- check: is this object a usable TYM state? ---------- */
+function isValidState(s) {
+  return !!s
+    && Array.isArray(s.tasks)
+    && Array.isArray(s.lists)
+    && typeof s.settings === 'object' && s.settings !== null;
+}
+
+/* Turn saved text back into a state. Bad text → fresh state.
+   The app must never crash because of a broken save file. */
+function parseState(text) {
+  try {
+    const s = JSON.parse(text);
+    if (isValidState(s)) return s;
+  } catch (e) { /* fall through to a fresh state */ }
+  return createDefaultState();
+}
+
+/* ---------- load / save (browser only) ---------- */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(TYM_STORAGE_KEY);
+    if (raw) return parseState(raw);
+  } catch (e) { /* storage blocked → run on a fresh state */ }
+  return createDefaultState();
+}
+
+function saveState(state) {
+  try {
+    localStorage.setItem(TYM_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { /* storage full/blocked → app keeps running in memory */ }
+}
+
+/* ---------- backup: export / import as a JSON file ---------- */
+function stateToBackupText(state) {
+  return JSON.stringify(state, null, 2);
+}
+
+/* Make the pure functions available to the Node tests. */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    TYM_STORAGE_KEY, createDefaultState, isValidState,
+    parseState, stateToBackupText
+  };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · dates.js
+   What this file does: ALL date math, in one place.
+   Dates are plain strings: 'YYYY-MM-DD'. Times: 'HH:MM'.
+   Keeping dates as strings makes comparing them easy:
+   '2026-11-08' < '2026-11-09' works like numbers.
+   Every function here is pure (no storage, no screen),
+   so the Node tests can check all of them.
+   ============================================================ */
+
+/* 7 -> '07' */
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+/* A Date object -> 'YYYY-MM-DD' (local time, not UTC). */
+function dateToStr(d) {
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+/* Today's date string. Pass a Date in tests to fix "today". */
+function todayStr(now) { return dateToStr(now || new Date()); }
+
+/* Add n days to a date string. Handles month/year edges. */
+function addDaysStr(str, n) {
+  const p = str.split('-').map(Number);
+  return dateToStr(new Date(p[0], p[1] - 1, p[2] + n));
+}
+
+/* Add n months. The day is clamped: Jan 31 + 1 month -> Feb 28. */
+function addMonthsStr(str, n) {
+  const p = str.split('-').map(Number);
+  const first = new Date(p[0], p[1] - 1 + n, 1);
+  const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  first.setDate(Math.min(p[2], lastDay));
+  return dateToStr(first);
+}
+
+/* Whole days from a to b (b - a). '2026-11-08' -> '2026-11-10' = 2. */
+function daysBetween(a, b) {
+  const pa = a.split('-').map(Number);
+  const pb = b.split('-').map(Number);
+  const da = new Date(pa[0], pa[1] - 1, pa[2]);
+  const db = new Date(pb[0], pb[1] - 1, pb[2]);
+  return Math.round((db - da) / 86400000);
+}
+
+/* The next date of a repeating task.
+   repeat: 'daily' | 'weekly' | 'monthly' | 'none'          */
+function nextRepeatDate(str, repeat) {
+  if (!str) return null;
+  if (repeat === 'daily') return addDaysStr(str, 1);
+  if (repeat === 'weekdays') {           // Mon–Fri only: skip Sat/Sun
+    let n = addDaysStr(str, 1);
+    let dow = new Date(...n.split('-').map((v, i) => i === 1 ? v - 1 : v)).getDay();
+    while (dow === 0 || dow === 6) { n = addDaysStr(n, 1); dow = (dow + 1) % 7; }
+    return n;
+  }
+  if (repeat === 'weekly') return addDaysStr(str, 7);
+  if (repeat === 'fortnightly') return addDaysStr(str, 14);
+  if (repeat === 'monthly') return addMonthsStr(str, 1);
+  return null;
+}
+
+/* Short, friendly label for a due date: 'Today', 'Tomorrow',
+   or '12 Nov'. Shown on task cards. */
+function dueLabel(str, now) {
+  if (!str) return '';
+  const today = todayStr(now);
+  if (str === today) return 'Today';
+  if (str === addDaysStr(today, 1)) return 'Tomorrow';
+  if (str === addDaysStr(today, -1)) return 'Yesterday';
+  const p = str.split('-').map(Number);
+  return new Date(p[0], p[1] - 1, p[2])
+    .toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+}
+
+/* Make the functions available to the Node tests. */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    pad2, dateToStr, todayStr, addDaysStr, addMonthsStr,
+    daysBetween, nextRepeatDate, dueLabel
+  };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · tasks.js
+   What this file does: ALL task logic — create, edit, delete,
+   complete, subtasks, repeats, filtering, sorting, stats.
+   Pure functions: they take the state, change it, return
+   results. No screen code here — screens call these.
+   Needs dates.js loaded before it (date math lives there).
+   ============================================================ */
+
+/* A unique id for a new task or subtask. */
+function makeId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+/* ---------- create / read / update / delete ---------- */
+
+/* Build a task object from form fields. Fills safe defaults
+   so every task always has the same shape. */
+function createTask(fields) {
+  return {
+    id: makeId(),
+    title: (fields.title || '').trim(),
+    notes: fields.notes || '',
+    listId: fields.listId || 'personal',
+    priority: fields.priority || 'med',       // high | med | low
+    tags: fields.tags || [],
+    due: fields.due || null,                  // 'YYYY-MM-DD'
+    time: fields.time || null,                // 'HH:MM'
+    repeat: fields.repeat || 'none',          // none|daily|weekdays|weekly|fortnightly|monthly
+    repeatBase: fields.repeatBase || 'due',   // next copy from 'due' date or from 'completion'
+    reminders: fields.reminders || [],        // minutes before due time: [0, 10, 60, 1440]
+    estMinutes: fields.estMinutes || 0,       // time estimate (Plan My Day uses it)
+    attachments: fields.attachments || [],    // small images: [{ name, dataUrl }]
+    subtasks: (fields.subtasks || []).map(s => ({
+      id: s.id || makeId(), title: s.title, done: !!s.done, depth: s.depth ? 1 : 0
+    })),
+    status: 'todo',                           // todo | doing | done (Board, Stage 4)
+    focus: !!fields.focus,                    // pinned in My Day Top 3
+    createdAt: Date.now(),
+    completedAt: null,
+    order: Date.now()
+  };
+}
+
+function addTaskToState(state, fields) {
+  const t = createTask(fields);
+  state.tasks.push(t);
+  return t;
+}
+
+function findTask(state, id) {
+  return state.tasks.find(t => t.id === id) || null;
+}
+
+/* Update a task's fields. Subtask done-ticks are preserved
+   by matching subtask titles (the editor edits titles as text). */
+function updateTask(state, id, fields) {
+  const t = findTask(state, id);
+  if (!t) return null;
+  if (fields.subtasks) {
+    const old = t.subtasks || [];
+    fields.subtasks = fields.subtasks.map(ns => {
+      const match = old.find(o => o.title === ns.title);
+      return match ? { id: match.id, title: ns.title, done: match.done, depth: ns.depth ? 1 : 0 }
+                   : { id: makeId(), title: ns.title, done: false, depth: ns.depth ? 1 : 0 };
+    });
+  }
+  Object.assign(t, fields);
+  return t;
+}
+
+/* Remove a task. Returns it, so the screen can offer Undo. */
+function removeTask(state, id) {
+  const i = state.tasks.findIndex(t => t.id === id);
+  if (i === -1) return null;
+  return state.tasks.splice(i, 1)[0];
+}
+
+function restoreTask(state, task) {
+  if (task && !findTask(state, task.id)) state.tasks.push(task);
+}
+
+/* ---------- completing tasks ---------- */
+
+/* Mark done or not done. Completing also:
+   - counts the day in state.completions (streaks/stats)
+   - if the task repeats, creates the next occurrence       */
+function setTaskDone(state, id, done, now) {
+  const t = findTask(state, id);
+  if (!t) return null;
+  const n = now || new Date();
+  if (done && t.status !== 'done') {
+    t.status = 'done';
+    t.completedAt = n.getTime();
+    const key = todayStr(n);
+    state.completions[key] = (state.completions[key] || 0) + 1;
+    if (t.repeat !== 'none' && t.due) {
+      const base = t.repeatBase === 'completion' ? key : t.due;
+      let next = nextRepeatDate(base, t.repeat);
+      while (next && next <= t.due) next = nextRepeatDate(next, t.repeat);
+      while (next && next < key) next = nextRepeatDate(next, t.repeat);
+      const copy = createTask({
+        title: t.title, notes: t.notes, listId: t.listId, priority: t.priority,
+        tags: t.tags.slice(), due: next, time: t.time, repeat: t.repeat,
+        repeatBase: t.repeatBase, reminders: t.reminders.slice(),
+        estMinutes: t.estMinutes,
+        subtasks: t.subtasks.map(s => ({ id: makeId(), title: s.title, done: false, depth: s.depth || 0 }))
+      });
+      copy.order = t.order + 1;
+      state.tasks.push(copy);
+    }
+  } else if (!done && t.status === 'done') {
+    t.status = 'todo';
+    if (t.completedAt) {
+      const key = dateToStr(new Date(t.completedAt));
+      if (state.completions[key]) {
+        state.completions[key] -= 1;
+        if (state.completions[key] <= 0) delete state.completions[key];
+      }
+    }
+    t.completedAt = null;
+  }
+  return t;
+}
+
+function toggleSubtask(state, taskId, subId) {
+  const t = findTask(state, taskId);
+  if (!t) return;
+  const s = t.subtasks.find(x => x.id === subId);
+  if (s) s.done = !s.done;
+}
+
+/* { done, total, pct } for a task's subtask progress bar. */
+function subtaskProgress(task) {
+  const subs = task.subtasks || [];
+  const done = subs.filter(s => s.done).length;
+  return { done, total: subs.length, pct: subs.length ? Math.round(done / subs.length * 100) : 0 };
+}
+
+/* ---------- picking tasks for screens ---------- */
+
+function isOpenTask(t) { return t.status !== 'done'; }
+
+/* Overdue = open, due date passed (or due time passed today). */
+function isOverdueTask(t, now) {
+  if (!isOpenTask(t) || !t.due) return false;
+  const today = todayStr(now);
+  if (t.due < today) return true;
+  if (t.due === today && t.time) {
+    const n = now || new Date();
+    return t.time < pad2(n.getHours()) + ':' + pad2(n.getMinutes());
+  }
+  return false;
+}
+
+const PRIORITY_RANK = { high: 0, med: 1, low: 2 };
+
+function sortTasks(tasks, mode) {
+  const arr = tasks.slice();
+  if (mode === 'priority') {
+    arr.sort((a, b) => (PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]) ||
+      ((a.due || '9999') < (b.due || '9999') ? -1 : 1));
+  } else if (mode === 'created') {
+    arr.sort((a, b) => b.createdAt - a.createdAt);
+  } else if (mode === 'manual') {
+    arr.sort((a, b) => a.order - b.order);
+  } else { /* 'due' — the default */
+    arr.sort((a, b) => {
+      const ad = a.due || '9999-99-99', bd = b.due || '9999-99-99';
+      if (ad !== bd) return ad < bd ? -1 : 1;
+      return PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+    });
+  }
+  return arr;
+}
+
+function searchTasks(tasks, query) {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return tasks;
+  return tasks.filter(t =>
+    t.title.toLowerCase().includes(q) ||
+    (t.notes || '').toLowerCase().includes(q) ||
+    t.subtasks.some(s => s.title.toLowerCase().includes(q)));
+}
+
+/* Everything the Today screen needs, in one call:
+   focus (Top 3), overdue, today — all open tasks only. */
+function tasksForToday(state, now) {
+  const n = now || new Date();
+  const today = todayStr(n);
+  const open = state.tasks.filter(isOpenTask);
+  return {
+    focus: sortTasks(open.filter(t => t.focus), 'priority'),
+    overdue: sortTasks(open.filter(t => isOverdueTask(t, n)), 'due'),
+    today: sortTasks(open.filter(t => t.due === today && !t.focus), 'due')
+  };
+}
+
+/* Numbers for the stats row + progress ring. */
+function dayStats(state, now) {
+  const n = now || new Date();
+  const today = todayStr(n);
+  const dueToday = state.tasks.filter(t => t.due === today);
+  const doneDueToday = dueToday.filter(t => t.status === 'done').length;
+  // streak: count back from today (or yesterday) while days have completions
+  let streak = 0;
+  let cursor = today;
+  if (!state.completions[cursor]) cursor = addDaysStr(cursor, -1);
+  while (state.completions[cursor] > 0) { streak += 1; cursor = addDaysStr(cursor, -1); }
+  return {
+    openCount: state.tasks.filter(isOpenTask).length,
+    dueTodayCount: dueToday.length,
+    doneDueToday,
+    pctToday: dueToday.length ? Math.round(doneDueToday / dueToday.length * 100) : 0,
+    doneToday: state.completions[today] || 0,
+    streak,
+    totalDone: state.tasks.filter(t => t.status === 'done').length
+  };
+}
+
+/* Make the functions available to the Node tests. */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    makeId, createTask, addTaskToState, findTask, updateTask,
+    removeTask, restoreTask, setTaskDone, toggleSubtask,
+    subtaskProgress, isOpenTask, isOverdueTask, sortTasks,
+    searchTasks, tasksForToday, dayStats, PRIORITY_RANK
+  };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · site.js
+   What this file does: the SHARED CHROME on every screen —
+   builds the sidebar (desktop) and bottom bar (phone),
+   applies the saved theme, and provides the toast message.
+   Every screen loads this file. Screen-specific work lives
+   in that screen's own JS file (today.js, habits.js, ...).
+   Pattern on every screen: load state → render → clicks.
+   ============================================================ */
+
+/* Every screen of the app, in sidebar order.
+   id must match the page's <body data-screen="...">. */
+const TYM_SCREENS = [
+  { id: 'today',     name: 'Today',     icon: '☀️', file: 'index.html',     group: 'Plan' },
+  { id: 'all',       name: 'All Tasks', icon: '🗂️', file: 'all.html',       group: 'Plan' },
+  { id: 'calendar',  name: 'Calendar',  icon: '📅', file: 'calendar.html',  group: 'Plan' },
+  { id: 'board',     name: 'Board',     icon: '📋', file: 'board.html',     group: 'Views' },
+  { id: 'matrix',    name: 'Matrix',    icon: '🎯', file: 'matrix.html',    group: 'Views' },
+  { id: 'timeline',  name: 'Timeline',  icon: '🕐', file: 'timeline.html',  group: 'Views' },
+  { id: 'habits',    name: 'Habits',    icon: '🔥', file: 'habits.html',    group: 'Grow' },
+  { id: 'focus',     name: 'Focus',     icon: '🍅', file: 'focus.html',     group: 'Grow' },
+  { id: 'review',    name: 'Review',    icon: '📊', file: 'review.html',    group: 'Grow' },
+  { id: 'study',     name: 'Study',     icon: '📚', file: 'study.html',     group: 'Students' },
+  { id: 'exams',     name: 'Exams',     icon: '⏳', file: 'exams.html',     group: 'Students' },
+  { id: 'timetable', name: 'Timetable', icon: '🏫', file: 'timetable.html', group: 'Students' },
+  { id: 'completed', name: 'Completed', icon: '✅', file: 'completed.html', group: 'More' },
+  { id: 'settings',  name: 'Settings',  icon: '⚙️', file: 'settings.html',  group: 'More' }
+];
+
+/* The five screens shown in the phone bottom bar. */
+const TYM_BOTTOM_BAR = ['today', 'calendar', 'habits', 'focus', 'settings'];
+
+/* The one shared state object for this page.
+   store.js loads it; every screen file reads and changes it,
+   then calls saveState(state) after a change. */
+let state = loadState();
+
+/* ---------- theme ---------- */
+function applyTheme() {
+  document.documentElement.dataset.theme = state.settings.theme || 'light';
+}
+function toggleTheme() {
+  state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+  saveState(state);
+  applyTheme();
+}
+
+/* ---------- navigation ---------- */
+function buildSidebar() {
+  const box = document.getElementById('sidebarNav');
+  if (!box) return;
+  const current = document.body.dataset.screen;
+  const groups = [];
+  for (const s of TYM_SCREENS) if (!groups.includes(s.group)) groups.push(s.group);
+  box.innerHTML = groups.map(g =>
+    '<div class="nav-group"><h4>' + g + '</h4>' +
+    TYM_SCREENS.filter(s => s.group === g).map(s =>
+      '<button class="nav-item' + (s.id === current ? ' active' : '') +
+      '" data-goto="' + s.file + '"><span>' + s.icon + ' ' + s.name + '</span></button>'
+    ).join('') + '</div>'
+  ).join('');
+}
+
+function buildBottomBar() {
+  const bar = document.getElementById('bottomBar');
+  if (!bar) return;
+  const current = document.body.dataset.screen;
+  bar.innerHTML = TYM_BOTTOM_BAR.map(id => {
+    const s = TYM_SCREENS.find(x => x.id === id);
+    return '<a href="' + s.file + '"' + (s.id === current ? ' class="active"' : '') +
+      '><span class="bb-icon">' + s.icon + '</span>' + s.name + '</a>';
+  }).join('');
+}
+
+/* ---------- toast: small message at the bottom ----------
+   showToast('Task deleted', 'Undo', function(){ ... })     */
+let toastTimer = null;
+function showToast(message, actionLabel, actionFn) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.innerHTML = '<span></span>';
+  el.firstChild.textContent = message;
+  if (actionLabel && actionFn) {
+    const b = document.createElement('button');
+    b.textContent = actionLabel;
+    b.addEventListener('click', () => { hideToast(); actionFn(); });
+    el.appendChild(b);
+  }
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 4200);
+}
+function hideToast() {
+  const el = document.getElementById('toast');
+  if (el) el.classList.remove('show');
+}
+
+/* ---------- small shared helpers ---------- */
+function escapeHTML(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* A friendly greeting by time of day, for the Today screen. */
+function greetingText(now) {
+  const h = (now || new Date()).getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+/* ---------- runs on every screen ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme();
+  buildSidebar();
+  buildBottomBar();
+  // Sidebar buttons navigate between screens.
+  document.body.addEventListener('click', e => {
+    const go = e.target.closest('[data-goto]');
+    if (go) window.location.href = go.dataset.goto;
+    if (e.target.closest('[data-theme-toggle]')) toggleTheme();
+  });
+});
+
+/* ---------- command palette + keyboard shortcuts ----------
+   Ctrl+K (or Cmd+K) opens the palette: type to jump to any
+   screen, add a task, or toggle the theme.
+   Shortcuts on list screens: n = new task, t = theme,
+   1–9 jump screens. '?' in the palette lists them.        */
+function buildPaletteHTML() {
+  if (document.getElementById('palette')) return;
+  const d = document.createElement('div');
+  d.className = 'modal';
+  d.id = 'palette';
+  d.innerHTML =
+    '<div class="modal-card palette-card">' +
+      '<input class="field" id="palInput" type="text" placeholder="Type a screen or action… (e.g. habits, new task, dark)">' +
+      '<div id="palList"></div>' +
+      '<p class="pal-hint">Shortcuts: Ctrl+K palette · n new task · t theme · 1–9 go to screen · Esc close</p>' +
+    '</div>';
+  document.body.appendChild(d);
+  d.addEventListener('click', e => { if (e.target.id === 'palette') closePalette(); });
+  document.getElementById('palInput').addEventListener('input', renderPalette);
+  document.getElementById('palInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const first = document.querySelector('#palList [data-pal]');
+      if (first) first.click();
+    }
+  });
+}
+
+function paletteActions() {
+  const acts = TYM_SCREENS.map(s => ({
+    label: s.icon + '  Go to ' + s.name, run: () => { window.location.href = s.file; }
+  }));
+  acts.push({ label: '＋  New task', run: () => { if (typeof openTaskEditor === 'function') openTaskEditor(null); } });
+  acts.push({ label: '🌙  Toggle dark / light', run: toggleTheme });
+  return acts;
+}
+
+function renderPalette() {
+  const q = document.getElementById('palInput').value.trim().toLowerCase();
+  const list = document.getElementById('palList');
+  list.innerHTML = paletteActions()
+    .filter(a => !q || a.label.toLowerCase().includes(q))
+    .map((a, i) => '<button class="pal-item" data-pal="' + i + '">' + escapeHTML(a.label.replace(/^\S+\s+/, '')) + '</button>')
+    .join('') || '<p class="pal-hint">No matches.</p>';
+  // Re-bind with correct indexes from the filtered list.
+  const filtered = paletteActions().filter(a => !q || a.label.toLowerCase().includes(q));
+  list.querySelectorAll('[data-pal]').forEach((b, i) =>
+    b.addEventListener('click', () => { closePalette(); filtered[i].run(); }));
+}
+
+function openPalette() {
+  buildPaletteHTML();
+  document.getElementById('palette').classList.add('open');
+  const input = document.getElementById('palInput');
+  input.value = '';
+  renderPalette();
+  input.focus();
+}
+function closePalette() {
+  const p = document.getElementById('palette');
+  if (p) p.classList.remove('open');
+}
+
+document.addEventListener('keydown', e => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    openPalette();
+    return;
+  }
+  if (e.key === 'Escape') closePalette();
+  if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'n' && typeof openTaskEditor === 'function') { e.preventDefault(); openTaskEditor(null); }
+  else if (e.key === 't') toggleTheme();
+  else if (/^[1-9]$/.test(e.key)) {
+    const s = TYM_SCREENS[parseInt(e.key, 10) - 1];
+    if (s) window.location.href = s.file;
+  }
+});
+
+/* Register the service worker (offline + installable).
+   Only on http/https — opening files directly skips it. */
+if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* offline mode unavailable */ });
+  });
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · md.js
+   What this file does: a TINY Markdown renderer for task
+   notes. Supports **bold**, *italic*, `code`, - lists and
+   lines. The text is HTML-escaped FIRST, so notes can never
+   inject markup — only our own formatting is added after.
+   ============================================================ */
+
+function mdRender(text) {
+  const esc = escapeHTML(text || '');
+  return esc.split('\n').map(line => {
+    let l = line
+      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/\*([^*]+)\*/g, '<i>$1</i>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>');
+    if (/^\s*-\s+/.test(l)) l = '• ' + l.replace(/^\s*-\s+/, '');
+    return l;
+  }).join('<br>');
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { mdRender };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · taskcard.js
+   What this file does: builds the HTML for ONE task card.
+   Every screen that shows tasks (Today, All, Completed...)
+   uses this, so a task looks the same everywhere.
+   Pure string building — no screen state here. Buttons carry
+   data-* attributes; the screen files handle the clicks
+   (one shared pattern, wired in each screen file).
+   Needs: dates.js (due labels) and tasks.js (progress).
+   ============================================================ */
+
+/* Find a list's display name/colour from the state lists. */
+function listOf(state, listId) {
+  return state.lists.find(l => l.id === listId) || { name: '', color: '#999' };
+}
+
+/* The HTML for one task card.
+   opts.compact = true hides subtask checkboxes (Completed). */
+function taskCardHTML(state, t, opts) {
+  const o = opts || {};
+  const list = listOf(state, t.listId);
+  const prog = subtaskProgress(t);
+  const overdue = isOverdueTask(t, new Date());
+  const subs = (t.subtasks || []).map(s =>
+    '<label class="sub"' + (s.depth ? ' style="margin-left:20px"' : '') + '><input type="checkbox" data-sub="' + s.id + '" data-task="' + t.id + '"' +
+    (s.done ? ' checked' : '') + (o.compact ? ' disabled' : '') + '> ' +
+    '<span class="' + (s.done ? 'sub-done' : '') + '">' + escapeHTML(s.title) + '</span></label>'
+  ).join('');
+
+  return '<div class="task' + (t.status === 'done' ? ' done' : '') + (overdue ? ' overdue' : '') +
+    '" data-card="' + t.id + '">' +
+    '<input type="checkbox" class="check" data-check="' + t.id + '"' +
+      (t.status === 'done' ? ' checked' : '') + '>' +
+    '<div class="task-main">' +
+      '<div class="task-title">' + escapeHTML(t.title) + '</div>' +
+      (t.notes ? '<div class="task-notes">' + (typeof mdRender === 'function' ? mdRender(t.notes) : escapeHTML(t.notes)) + '</div>' : '') +
+      '<div class="task-meta">' +
+        '<span class="pill prio-' + t.priority + '">' +
+          (t.priority === 'med' ? 'medium' : t.priority) + '</span>' +
+        '<span class="pill"><i class="dot" style="background:' + list.color + '"></i>' +
+          escapeHTML(list.name) + '</span>' +
+        (t.due ? '<span class="pill">' + dueLabel(t.due) + (t.time ? ' · ' + t.time : '') + '</span>' : '') +
+        (t.repeat !== 'none' ? '<span class="pill">🔁 ' + t.repeat + '</span>' : '') +
+        (t.focus ? '<span class="pill">📌 focus</span>' : '') +
+        (t.estMinutes ? '<span class="pill">⏱ ' + t.estMinutes + 'm</span>' : '') +
+        (t.reminders && t.reminders.length ? '<span class="pill">⏰ ' + t.reminders.length + '</span>' : '') +
+        (t.tags || []).map(tag => '<span class="pill">#' + escapeHTML(tag) + '</span>').join('') +
+        (prog.total ? '<span class="pill">' + prog.done + '/' + prog.total + ' steps</span>' : '') +
+      '</div>' +
+      (prog.total ? '<div class="progress"><div style="width:' + prog.pct + '%"></div></div>' : '') +
+      (subs ? '<div class="subs">' + subs + '</div>' : '') +
+      ((t.attachments && t.attachments.length)
+        ? '<div class="attach-row">' + t.attachments.map(a =>
+            '<img class="attach-img" src="' + a.dataUrl + '" alt="' + escapeHTML(a.name) + '">').join('') + '</div>'
+        : '') +
+    '</div>' +
+    '<div class="task-actions">' +
+      '<button class="icon-btn" data-focus="' + t.id + '" title="Pin to Top 3">' +
+        (t.focus ? '📌' : '📍') + '</button>' +
+      '<button class="icon-btn" data-edit="' + t.id + '" title="Edit">✏️</button>' +
+      '<button class="icon-btn" data-del="' + t.id + '" title="Delete">🗑</button>' +
+    '</div>' +
+  '</div>';
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · editor.js
+   What this file does: the TASK EDITOR popup, shared by all
+   screens, plus the shared clicks on task cards.
+   Editor fields: title, notes (Markdown ok), list, priority,
+   due date + time, repeat (+ from-completion), reminders,
+   estimate, tags, subtasks (indent a line with 2 spaces to
+   nest it), attachments (small images), Top-3 pin.
+   Also: Duplicate button + Save-as-template in the editor.
+   On save: writes via tasks.js, saves state, fires
+   'tym:changed' — screens re-render on it.
+   ============================================================ */
+
+let editorTaskId = null; // null = creating a new task
+let editorAttachments = []; // working copy while the popup is open
+
+const REMINDER_CHOICES = [
+  { min: 0, label: 'At time' }, { min: 10, label: '10 min before' },
+  { min: 60, label: '1 hour before' }, { min: 1440, label: '1 day before' }
+];
+
+/* Add the popup's HTML to the page (once). */
+function buildEditorHTML() {
+  if (document.getElementById('taskEditor')) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML =
+  '<div class="modal" id="taskEditor"><div class="modal-card">' +
+    '<h2 id="edHeading">New Task</h2>' +
+    '<div id="edTemplateRow"><label>Start from a template</label>' +
+      '<select class="field" id="edTemplate"><option value="">— none —</option></select></div>' +
+    '<label>Title *</label>' +
+    '<input class="field" id="edTitle" type="text" placeholder="What needs to be done?">' +
+    '<label>Notes (Markdown works: **bold**, - list)</label>' +
+    '<textarea class="field" id="edNotes" rows="2" placeholder="Any details…"></textarea>' +
+    '<div class="row">' +
+      '<div><label>List</label><select class="field" id="edList"></select></div>' +
+      '<div><label>Priority</label><select class="field" id="edPriority">' +
+        '<option value="high">🔴 High</option>' +
+        '<option value="med" selected>🟠 Medium</option>' +
+        '<option value="low">🟢 Low</option>' +
+      '</select></div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div><label>Due date</label><input class="field" id="edDue" type="date"></div>' +
+      '<div><label>Time</label><input class="field" id="edTime" type="time"></div>' +
+      '<div><label>Estimate (minutes)</label><input class="field" id="edEst" type="number" min="0" step="5" placeholder="30"></div>' +
+    '</div>' +
+    '<div class="row">' +
+      '<div><label>Repeat</label><select class="field" id="edRepeat">' +
+        '<option value="none">Never</option><option value="daily">Daily</option>' +
+        '<option value="weekdays">Weekdays</option><option value="weekly">Weekly</option>' +
+        '<option value="fortnightly">Every 2 weeks</option><option value="monthly">Monthly</option>' +
+      '</select></div>' +
+      '<div><label>Next copy from</label><select class="field" id="edRepeatBase">' +
+        '<option value="due">Due date</option><option value="completion">Completion day</option>' +
+      '</select></div>' +
+    '</div>' +
+    '<label>Remind me</label><div class="remind-row" id="edReminders">' +
+      REMINDER_CHOICES.map(r =>
+        '<label class="checkline"><input type="checkbox" value="' + r.min + '"> ' + r.label + '</label>').join('') +
+    '</div>' +
+    '<label>Tags (comma separated)</label>' +
+    '<input class="field" id="edTags" type="text" placeholder="exam, fees, home">' +
+    '<label>Subtasks (one per line — indent with 2 spaces to nest)</label>' +
+    '<textarea class="field" id="edSubs" rows="3" placeholder="Step one&#10;  Nested step&#10;Step two"></textarea>' +
+    '<label>Attach an image (small, under 300 KB)</label>' +
+    '<input class="field" id="edAttach" type="file" accept="image/*">' +
+    '<div class="attach-row" id="edAttachRow"></div>' +
+    '<label class="checkline"><input type="checkbox" id="edFocus"> 📌 Pin to Top 3 (My Day)</label>' +
+    '<div class="modal-actions">' +
+      '<button class="btn" id="edDup" style="display:none">⧉ Duplicate</button>' +
+      '<button class="btn" id="edTemplateSave">💾 As template</button>' +
+      '<button class="btn" id="edCancel">Cancel</button>' +
+      '<button class="btn btn-primary" id="edSave">Save Task</button>' +
+    '</div>' +
+  '</div></div>';
+  document.body.appendChild(wrap.firstChild);
+
+  document.getElementById('edCancel').addEventListener('click', closeTaskEditor);
+  document.getElementById('edSave').addEventListener('click', saveTaskEditor);
+  document.getElementById('edDup').addEventListener('click', duplicateFromEditor);
+  document.getElementById('edTemplateSave').addEventListener('click', saveAsTemplate);
+  document.getElementById('edTemplate').addEventListener('change', applyTemplate);
+  document.getElementById('edAttach').addEventListener('change', onAttachPick);
+  document.getElementById('taskEditor').addEventListener('click', e => {
+    if (e.target.id === 'taskEditor') closeTaskEditor();
+  });
+}
+
+/* Tell every screen: "the data changed, draw yourself again." */
+function announceChange() {
+  document.dispatchEvent(new CustomEvent('tym:changed'));
+}
+
+/* Read every form field into a fields object. */
+function readEditorFields() {
+  return {
+    title: document.getElementById('edTitle').value.trim(),
+    notes: document.getElementById('edNotes').value.trim(),
+    listId: document.getElementById('edList').value,
+    priority: document.getElementById('edPriority').value,
+    due: document.getElementById('edDue').value || null,
+    time: document.getElementById('edTime').value || null,
+    estMinutes: parseInt(document.getElementById('edEst').value, 10) || 0,
+    repeat: document.getElementById('edRepeat').value,
+    repeatBase: document.getElementById('edRepeatBase').value,
+    reminders: Array.from(document.querySelectorAll('#edReminders input:checked'))
+      .map(c => parseInt(c.value, 10)),
+    tags: document.getElementById('edTags').value.split(',')
+      .map(s => s.trim().toLowerCase()).filter(Boolean),
+    focus: document.getElementById('edFocus').checked,
+    attachments: editorAttachments.slice(),
+    subtasks: document.getElementById('edSubs').value.split('\n')
+      .filter(line => line.trim())
+      .map(line => ({ title: line.trim(), depth: /^(\s{2,}|\t)/.test(line) ? 1 : 0 }))
+  };
+}
+
+/* Fill the form from a fields object (task or template). */
+function fillEditor(f) {
+  document.getElementById('edTitle').value = f.title || '';
+  document.getElementById('edNotes').value = f.notes || '';
+  document.getElementById('edPriority').value = f.priority || 'med';
+  document.getElementById('edDue').value = f.due || '';
+  document.getElementById('edTime').value = f.time || '';
+  document.getElementById('edEst').value = f.estMinutes || '';
+  document.getElementById('edRepeat').value = f.repeat || 'none';
+  document.getElementById('edRepeatBase').value = f.repeatBase || 'due';
+  document.getElementById('edTags').value = (f.tags || []).join(', ');
+  document.getElementById('edFocus').checked = !!f.focus;
+  document.getElementById('edSubs').value = (f.subtasks || [])
+    .map(s => (s.depth ? '  ' : '') + s.title).join('\n');
+  document.querySelectorAll('#edReminders input').forEach(c => {
+    c.checked = (f.reminders || []).includes(parseInt(c.value, 10));
+  });
+  editorAttachments = (f.attachments || []).slice();
+  renderAttachRow();
+  const listSel = document.getElementById('edList');
+  if (f.listId) listSel.value = f.listId;
+}
+
+function renderAttachRow() {
+  const row = document.getElementById('edAttachRow');
+  if (!row) return;
+  row.innerHTML = editorAttachments.map((a, i) =>
+    '<span class="attach-chip"><img src="' + a.dataUrl + '" alt="">' + escapeHTML(a.name) +
+    ' <button type="button" data-detach="' + i + '">✕</button></span>').join('');
+}
+
+/* Attach: keep only small images — localStorage is limited. */
+function onAttachPick(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (file.size > 300 * 1024) { showToast('Image too big — keep it under 300 KB'); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    editorAttachments.push({ name: file.name, dataUrl: r.result });
+    renderAttachRow();
+  };
+  r.readAsDataURL(file);
+  e.target.value = '';
+}
+
+/* Open the popup. task = null means "new task". */
+function openTaskEditor(task) {
+  buildEditorHTML();
+  editorTaskId = task ? task.id : null;
+  document.getElementById('edHeading').textContent = task ? 'Edit Task' : 'New Task';
+  document.getElementById('edDup').style.display = task ? '' : 'none';
+  document.getElementById('edTemplateRow').style.display = task ? 'none' : '';
+  document.getElementById('edList').innerHTML = state.lists.map(l =>
+    '<option value="' + l.id + '"' + (task && task.listId === l.id ? ' selected' : '') +
+    '>' + escapeHTML(l.name) + '</option>').join('');
+  const tsel = document.getElementById('edTemplate');
+  tsel.innerHTML = '<option value="">— none —</option>' + state.templates.map(t =>
+    '<option value="' + t.id + '">' + escapeHTML(t.name) + '</option>').join('');
+  fillEditor(task || {});
+  document.getElementById('taskEditor').classList.add('open');
+  document.getElementById('edTitle').focus();
+}
+
+function closeTaskEditor() {
+  const m = document.getElementById('taskEditor');
+  if (m) m.classList.remove('open');
+  editorTaskId = null;
+}
+
+/* Load a saved template into the (new task) form. */
+function applyTemplate() {
+  const id = document.getElementById('edTemplate').value;
+  if (!id) return;
+  const t = state.templates.find(x => x.id === id);
+  if (t) fillEditor(t.fields);
+}
+
+/* Save the current form as a reusable template. */
+function saveAsTemplate() {
+  const f = readEditorFields();
+  if (!f.title) { showToast('Give the task a title first'); return; }
+  state.templates.push({ id: makeId(), name: f.title, fields: f });
+  saveState(state);
+  showToast('Template saved 💾');
+}
+
+/* Duplicate: create a copy of the task being edited. */
+function duplicateFromEditor() {
+  if (!editorTaskId) return;
+  const t = findTask(state, editorTaskId);
+  if (!t) return;
+  const copy = addTaskToState(state, {
+    title: t.title + ' (copy)', notes: t.notes, listId: t.listId, priority: t.priority,
+    tags: t.tags.slice(), due: t.due, time: t.time, repeat: 'none',
+    reminders: t.reminders.slice(), estMinutes: t.estMinutes,
+    subtasks: t.subtasks.map(s => ({ title: s.title, depth: s.depth || 0 }))
+  });
+  saveState(state);
+  closeTaskEditor();
+  announceChange();
+  showToast('Task duplicated ⧉');
+}
+
+/* Read the form, write the task, close, announce. */
+function saveTaskEditor() {
+  const fields = readEditorFields();
+  if (!fields.title) { document.getElementById('edTitle').focus(); return; }
+  if (fields.focus) {
+    const others = state.tasks.filter(t => t.focus && t.id !== editorTaskId && t.status !== 'done');
+    if (others.length >= 3) { showToast('Top 3 is full — unpin one first'); return; }
+  }
+  if (editorTaskId) updateTask(state, editorTaskId, fields);
+  else addTaskToState(state, fields);
+  saveState(state);
+  closeTaskEditor();
+  announceChange();
+}
+
+/* Escape closes the popup, on any screen that has it. */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeTaskEditor();
+});
+
+/* ---------- shared card clicks ----------
+   Tick done, tick subtask, pin focus, edit, delete (+Undo),
+   remove an attachment chip inside the editor.             */
+document.addEventListener('change', e => {
+  const chk = e.target.closest('[data-check]');
+  if (chk) {
+    setTaskDone(state, chk.dataset.check, chk.checked, new Date());
+    saveState(state);
+    announceChange();
+    return;
+  }
+  const sub = e.target.closest('[data-sub]');
+  if (sub) {
+    toggleSubtask(state, sub.dataset.task, sub.dataset.sub);
+    saveState(state);
+    announceChange();
+  }
+});
+
+document.addEventListener('click', e => {
+  const det = e.target.closest('[data-detach]');
+  if (det) {
+    editorAttachments.splice(parseInt(det.dataset.detach, 10), 1);
+    renderAttachRow();
+    return;
+  }
+  const ed = e.target.closest('[data-edit]');
+  if (ed) {
+    const t = findTask(state, ed.dataset.edit);
+    if (t) openTaskEditor(t);
+    return;
+  }
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    const removed = removeTask(state, del.dataset.del);
+    saveState(state);
+    announceChange();
+    if (removed) showToast('Task deleted', 'Undo', () => {
+      restoreTask(state, removed);
+      saveState(state);
+      announceChange();
+    });
+    return;
+  }
+  const foc = e.target.closest('[data-focus]');
+  if (foc) {
+    const t = findTask(state, foc.dataset.focus);
+    if (!t) return;
+    if (!t.focus) {
+      const pinned = state.tasks.filter(x => x.focus && x.status !== 'done');
+      if (pinned.length >= 3) { showToast('Top 3 is full — unpin one first'); return; }
+      t.focus = true;
+    } else {
+      t.focus = false;
+    }
+    saveState(state);
+    announceChange();
+  }
+});
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · native.js
+   What this file does: the ONLY file that talks to the
+   phone. Inside the Android app (Capacitor) it schedules
+   real notifications that fire even when TYM is closed.
+   In a plain browser it does nothing — the browser alarm
+   engine in reminders.js handles that case.
+   ============================================================ */
+
+/* Are we running inside the wrapped mobile app? */
+function tymInApp() {
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform &&
+    window.Capacitor.isNativePlatform());
+}
+
+/* Ask the phone for notification permission (app only). */
+async function tymRequestNotifyPermission() {
+  if (!tymInApp()) return false;
+  try {
+    const LN = window.Capacitor.Plugins.LocalNotifications;
+    const res = await LN.requestPermissions();
+    return res.display === 'granted';
+  } catch (e) { return false; }
+}
+
+/* Schedule one phone notification. id must be a number. */
+async function tymScheduleNotification(id, title, body, atMs) {
+  if (!tymInApp()) return false;
+  try {
+    const LN = window.Capacitor.Plugins.LocalNotifications;
+    await LN.schedule({ notifications: [{ id, title, body, schedule: { at: new Date(atMs), allowWhileIdle: true } }] });
+    return true;
+  } catch (e) { return false; }
+}
+
+/* Short vibration — alarm and button feedback on phones. */
+function tymBuzz(pattern) {
+  try { if (navigator.vibrate) navigator.vibrate(pattern || 200); } catch (e) { /* no vibrate */ }
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · reminders.js
+   What this file does: REMINDERS + the ALARM.
+   - Works out when each task should remind (fire times).
+   - A small engine checks every 15 seconds.
+   - Browser: shows the full-screen alarm + sound, and a
+     system notification if permission was given.
+   - Android app: also schedules real phone notifications
+     through native.js, so alarms fire with the app closed.
+   The pure math (reminderFireTimes, dueReminders) is
+   exported for the Node tests.
+   ============================================================ */
+
+/* The moment a task is "due": its date + its time.
+   A task with a date but no time is due at 09:00. */
+function dueMomentMs(task) {
+  if (!task.due) return null;
+  const p = task.due.split('-').map(Number);
+  const t = (task.time || '09:00').split(':').map(Number);
+  return new Date(p[0], p[1] - 1, p[2], t[0], t[1]).getTime();
+}
+
+/* All the times this task should ring: due moment minus
+   each reminder offset (in minutes). Sorted, oldest first. */
+function reminderFireTimes(task) {
+  const base = dueMomentMs(task);
+  if (base === null) return [];
+  const offsets = (task.reminders && task.reminders.length) ? task.reminders : [];
+  return offsets.map(min => base - min * 60000).sort((a, b) => a - b);
+}
+
+/* Which reminders should ring RIGHT NOW?
+   Rules: task still open · fire time reached · not rung
+   before · not older than 2 hours (no stale rings) ·
+   a snoozed task rings again when its snooze ends. */
+function dueReminders(state, nowMs) {
+  const out = [];
+  for (const t of state.tasks) {
+    if (t.status === 'done') continue;
+    const until = state.snoozed && state.snoozed[t.id];
+    if (until) {
+      if (nowMs >= until) out.push({ task: t, key: t.id + '@s' + until, snoozeEnd: true });
+      continue;
+    }
+    for (const ft of reminderFireTimes(t)) {
+      const key = t.id + '@' + ft;
+      if (ft <= nowMs && nowMs - ft < 2 * 3600 * 1000 && !(state.fired && state.fired[key])) {
+        out.push({ task: t, key, fireMs: ft });
+      }
+    }
+  }
+  return out;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { dueMomentMs, reminderFireTimes, dueReminders };
+}
+
+/* ---------- browser-only engine below ---------- */
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+
+  let audioCtx = null, beepTimer = null, ringingKey = null;
+
+  /* A simple repeating beep, made with WebAudio (no file). */
+  function startBeep() {
+    stopBeep();
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const beep = () => {
+        if (!audioCtx) return;
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.45);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.5);
+      };
+      beep();
+      beepTimer = setInterval(beep, 1200);
+    } catch (e) { /* sound blocked — the visual alarm still shows */ }
+    tymBuzz([300, 120, 300, 120, 300]);
+  }
+  function stopBeep() {
+    if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+  }
+
+  /* Build the full-screen alarm view (once). */
+  function buildAlarmHTML() {
+    if (document.getElementById('alarmView')) return;
+    const d = document.createElement('div');
+    d.className = 'alarm-view';
+    d.id = 'alarmView';
+    d.innerHTML =
+      '<div class="alarm-emoji">⏰</div>' +
+      '<div class="alarm-title" id="alarmTitle"></div>' +
+      '<div class="alarm-sub" id="alarmSub"></div>' +
+      '<div class="alarm-actions">' +
+        '<button class="btn btn-primary" id="alarmDone">✓ Done</button>' +
+        '<button class="btn" id="alarmSnooze">😴 Snooze 10 min</button>' +
+      '</div>';
+    document.body.appendChild(d);
+  }
+
+  let alarmTaskId = null;
+  function showAlarm(task) {
+    buildAlarmHTML();
+    alarmTaskId = task.id;
+    document.getElementById('alarmTitle').textContent = task.title;
+    document.getElementById('alarmSub').textContent =
+      'Due ' + dueLabel(task.due) + (task.time ? ' · ' + task.time : '');
+    document.getElementById('alarmView').classList.add('show');
+    startBeep();
+  }
+  function hideAlarm() {
+    const v = document.getElementById('alarmView');
+    if (v) v.classList.remove('show');
+    stopBeep();
+    alarmTaskId = null;
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.id === 'alarmDone' && alarmTaskId) {
+      const id = alarmTaskId;
+      hideAlarm();
+      setTaskDone(state, id, true, new Date());
+      saveState(state);
+      document.dispatchEvent(new CustomEvent('tym:changed'));
+      showToast('Done 🎉');
+    }
+    if (e.target.id === 'alarmSnooze' && alarmTaskId) {
+      state.snoozed[alarmTaskId] = Date.now() + 10 * 60000;
+      saveState(state);
+      hideAlarm();
+      showToast('Snoozed for 10 minutes 😴');
+    }
+  });
+
+  /* The engine: check every 15 seconds. */
+  function engineTick() {
+    if (typeof state === 'undefined') return;
+    const due = dueReminders(state, Date.now());
+    for (const d of due) {
+      state.fired[d.key] = true;
+      if (d.snoozeEnd) delete state.snoozed[d.task.id];
+      saveState(state);
+      // System notification too, if the user allowed it.
+      try {
+        if (window.Notification && Notification.permission === 'granted') {
+          new Notification('⏰ TYM Reminder', { body: d.task.title });
+        }
+      } catch (e) { /* ignore */ }
+      if (!ringingKey) { ringingKey = d.key; showAlarm(d.task); }
+    }
+    if (ringingKey && !document.getElementById('alarmView').classList.contains('show')) {
+      ringingKey = null;
+    }
+    if (!document.getElementById('alarmView') ||
+        !document.getElementById('alarmView').classList.contains('show')) ringingKey = null;
+  }
+
+  /* In the Android app, mirror upcoming reminders as real
+     phone notifications (they fire with the app closed). */
+  let nativeTimer = null;
+  function syncNative() {
+    if (!tymInApp() || typeof state === 'undefined') return;
+    clearTimeout(nativeTimer);
+    nativeTimer = setTimeout(async () => {
+      await tymRequestNotifyPermission();
+      const now = Date.now();
+      const upcoming = [];
+      for (const t of state.tasks) {
+        if (t.status === 'done') continue;
+        for (const ft of reminderFireTimes(t)) if (ft > now) upcoming.push({ t, ft });
+      }
+      upcoming.sort((a, b) => a.ft - b.ft);
+      for (const u of upcoming.slice(0, 30)) {
+        let h = 0; const s = u.t.id + '@' + u.ft;
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+        tymScheduleNotification(h % 2000000000, '⏰ TYM Reminder', u.t.title, u.ft);
+      }
+    }, 600);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setInterval(engineTick, 15000);
+    setTimeout(engineTick, 2500);
+    syncNative();
+  });
+  document.addEventListener('tym:changed', syncNative);
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · parse.js
+   What this file does: understands quick-add text like
+   "Pay fees tomorrow 5pm !high #college" and pulls out the
+   due date, time, priority and tags, leaving a clean title.
+   Pure function — the Node tests check it.
+   Needs dates.js loaded before it.
+   ============================================================ */
+
+const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+/* parseQuickAdd(text, now) -> { title, due, time, priority, tags }
+   Anything not understood stays in the title. */
+function parseQuickAdd(text, now) {
+  const n = now || new Date();
+  const today = todayStr(n);
+  let rest = ' ' + String(text || '') + ' ';
+  const out = { title: '', due: null, time: null, priority: null, tags: [] };
+
+  // Tags: #word
+  rest = rest.replace(/#(\w+)/g, (m, tag) => { out.tags.push(tag); return ' '; });
+
+  // Priority: !high / !med / !low  (also !1 !2 !3)
+  rest = rest.replace(/!(high|med|medium|low|1|2|3)\b/i, (m, p) => {
+    const k = p.toLowerCase();
+    out.priority = (k === 'high' || k === '1') ? 'high'
+      : (k === 'low' || k === '3') ? 'low' : 'med';
+    return ' ';
+  });
+
+  // Time: 5pm, 5:30pm, 17:30, "at 5 pm"
+  const timeRe = /\b(?:at\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i;
+  const timeRe24 = /\b([01]?\d|2[0-3]):([0-5]\d)\b/;
+  let m = rest.match(timeRe);
+  if (m) {
+    let h = parseInt(m[1], 10) % 12;
+    if (/pm/i.test(m[3])) h += 12;
+    out.time = pad2(h) + ':' + (m[2] || '00');
+    rest = rest.replace(timeRe, ' ');
+  } else if ((m = rest.match(timeRe24))) {
+    out.time = pad2(parseInt(m[1], 10)) + ':' + m[2];
+    rest = rest.replace(timeRe24, ' ');
+  }
+
+  // Dates, most specific first.
+  const lower = rest.toLowerCase();
+  if (/\btomorrow\b/.test(lower)) {
+    out.due = addDaysStr(today, 1);
+    rest = rest.replace(/tomorrow/i, ' ');
+  } else if (/\btoday\b/.test(lower)) {
+    out.due = today;
+    rest = rest.replace(/today/i, ' ');
+  } else if ((m = lower.match(/\bin\s+(\d+)\s+days?\b/))) {
+    out.due = addDaysStr(today, parseInt(m[1], 10));
+    rest = rest.replace(/\bin\s+\d+\s+days?\b/i, ' ');
+  } else if ((m = lower.match(/\bnext\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/)) ||
+             (m = lower.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/))) {
+    const target = DAY_NAMES.indexOf(m[1]);
+    let delta = (target - n.getDay() + 7) % 7;
+    if (delta === 0 || /^next/.test(m[0])) delta += 7; // "monday" said on Monday = next week
+    out.due = addDaysStr(today, delta);
+    rest = rest.replace(m[0], ' ');
+  } else if ((m = lower.match(/\b(\d{4})-(\d{2})-(\d{2})\b/))) {
+    out.due = m[0];
+    rest = rest.replace(m[0], ' ');
+  }
+
+  out.title = rest.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { parseQuickAdd };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · progress.js
+   What this file does: PROGRESS MATH as pure functions —
+   habit streaks, longest streak, last-N-days lists, week
+   summaries. Used by the Habits and Review screens.
+   Needs dates.js loaded before it.
+   ============================================================ */
+
+/* Date strings for the last n days, oldest first. */
+function lastNDays(n, now) {
+  const today = todayStr(now);
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) out.push(addDaysStr(today, -i));
+  return out;
+}
+
+/* Current streak of one habit. log = { 'YYYY-MM-DD': true }.
+   A streak survives "today not done yet" — it breaks only
+   when a full day passes with no tick. */
+function habitStreak(log, now) {
+  let streak = 0;
+  let cursor = todayStr(now);
+  if (!log[cursor]) cursor = addDaysStr(cursor, -1);
+  while (log[cursor]) { streak += 1; cursor = addDaysStr(cursor, -1); }
+  return streak;
+}
+
+/* Longest run of consecutive days with count > 0 in a
+   { dateStr: count } map (used for task completions). */
+function longestStreak(dayCounts) {
+  const days = Object.keys(dayCounts).filter(d => dayCounts[d] > 0).sort();
+  let best = 0, run = 0, prev = null;
+  for (const d of days) {
+    run = (prev && addDaysStr(prev, 1) === d) ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = d;
+  }
+  return best;
+}
+
+/* Completions for the last 7 days: [{ date, count }]. */
+function weekSummary(completions, now) {
+  return lastNDays(7, now).map(date => ({
+    date, count: completions[date] || 0
+  }));
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { lastNDays, habitStreak, longestStreak, weekSummary };
+}
+
+</script>
+<script>
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · plan.js
+   What this file does: SMART PLANNING, as pure functions.
+   - arrangeDay: give untimed tasks sensible start times.
+   - whatCanIDo: "I have 20 minutes and low energy — what
+     should I do?" answered from the open task list.
+   The Node tests check both.
+   ============================================================ */
+
+const PLAN_RANK = { high: 0, med: 1, low: 2 };
+
+/* 'HH:MM' -> minutes since midnight, and back. */
+function timeToMin(t) { const p = t.split(':').map(Number); return p[0] * 60 + p[1]; }
+function minToTime(m) {
+  return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+}
+
+/* Arrange one day. Timed tasks keep their times (they are
+   fixed appointments). Untimed tasks are placed into the
+   free gaps, most important first, starting at dayStart.
+   Returns [{ id, time }] for the tasks that got a time. */
+function arrangeDay(tasks, dateStr, dayStart) {
+  const start = timeToMin(dayStart || '09:00');
+  const dayTasks = tasks.filter(t => t.status !== 'done' && t.due === dateStr);
+  const busy = dayTasks.filter(t => t.time)
+    .map(t => [timeToMin(t.time), timeToMin(t.time) + (t.estMinutes || 30)]);
+  const untimed = dayTasks.filter(t => !t.time)
+    .sort((a, b) => (PLAN_RANK[a.priority] - PLAN_RANK[b.priority]) ||
+      ((a.estMinutes || 30) - (b.estMinutes || 30)));
+
+  const placed = [];
+  let cursor = start;
+  for (const t of untimed) {
+    const len = t.estMinutes || 30;
+    // Move the cursor past any busy block it would overlap.
+    let moved = true;
+    while (moved) {
+      moved = false;
+      for (const [bs, be] of busy) {
+        if (cursor < be && cursor + len > bs) { cursor = be; moved = true; }
+      }
+    }
+    placed.push({ id: t.id, time: minToTime(cursor) });
+    busy.push([cursor, cursor + len]);
+    cursor += len;
+  }
+  return placed;
+}
+
+/* "What can I do now?" — tasks that fit the free minutes.
+   energy 'high' prefers big/important work; 'low' prefers
+   short, easy wins. Returns tasks, best first. */
+function whatCanIDo(tasks, freeMinutes, energy) {
+  const fits = tasks.filter(t => t.status !== 'done' && (t.estMinutes || 15) <= freeMinutes);
+  return fits.sort((a, b) => {
+    const ea = energyScore(a, energy), eb = energyScore(b, energy);
+    if (ea !== eb) return eb - ea;
+    return PLAN_RANK[a.priority] - PLAN_RANK[b.priority];
+  });
+}
+function energyScore(t, energy) {
+  const est = t.estMinutes || 15;
+  if (energy === 'high') return (t.priority === 'high' ? 2 : 0) + (est >= 25 ? 1 : 0);
+  if (energy === 'low') return (t.priority === 'low' ? 2 : 0) + (est <= 20 ? 1 : 0);
+  return t.priority === 'med' ? 1 : 0;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { arrangeDay, whatCanIDo, timeToMin, minToTime };
+}
+
+</script>
+
+<script>
+/* ===== TYM single-file router (registry) =====
+   This MUST come before the screen scripts: each screen
+   registers its render/init functions here as it loads. */
+window.__tymRenders = {};
+window.__tymInits = {};
+window.__tymInited = {};
+window.__tymActive = 'today';
+function __tymRegister(id, fn) { window.__tymRenders[id] = fn; }
+function __tymInit(id, fn) { window.__tymInits[id] = fn; }
+</script>
+<script>
+/* ===== screen: today ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · today.js
+   What this file does: the TODAY screen — greeting, My Day
+   Top-3 focus banner, day progress ring, quick add, and
+   today's + overdue task lists.
+   Data comes from tasks.js (tasksForToday, dayStats).
+   Card clicks (tick, edit, delete, pin) are handled in
+   editor.js — this file only draws and quick-adds.
+   ============================================================ */
+
+/* The progress ring: an SVG circle that fills to pct%. */
+function ringHTML(pct) {
+  const r = 34, c = 2 * Math.PI * r;
+  const off = c - (pct / 100) * c;
+  return '<svg class="ring" width="84" height="84" viewBox="0 0 84 84">' +
+    '<defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="#f6b73c"/><stop offset="100%" stop-color="#f59e0b"/>' +
+    '</linearGradient></defs>' +
+    '<circle class="ring-bg" cx="42" cy="42" r="' + r + '" fill="none" stroke-width="8"/>' +
+    '<circle class="ring-fg" cx="42" cy="42" r="' + r + '" fill="none" stroke-width="8" ' +
+    'stroke-dasharray="' + c + '" stroke-dashoffset="' + off + '"/></svg>';
+}
+
+function render() {
+  const now = new Date();
+  const groups = tasksForToday(state, now);
+  const stats = dayStats(state, now);
+  const box = document.getElementById('screenContent');
+
+  // Greeting line at the top of the screen.
+  document.getElementById('greetingLine').textContent =
+    greetingText(now) + ' · ' + now.toLocaleDateString(undefined,
+      { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // The focus banner: Top-3 pins, or a hint to pin.
+  const focusHTML = groups.focus.length
+    ? groups.focus.map(t =>
+        '<div class="fb-task">📌 ' + escapeHTML(t.title) + '</div>').join('')
+    : '<div class="fb-task">Pin up to 3 tasks with 📍 to plan your day.</div>';
+
+  let html =
+    '<div class="focus-banner stagger"><h2>🎯 My Day — Top 3</h2>' + focusHTML + '</div>' +
+    '<div class="stat-grid" style="margin-bottom:18px">' +
+      '<div class="stat"><b>' + stats.doneToday + '</b><span>done today</span></div>' +
+      '<div class="stat"><b>' + stats.streak + ' 🔥</b><span>day streak</span></div>' +
+      '<div class="stat"><b>' + stats.openCount + '</b><span>open tasks</span></div>' +
+    '</div>' +
+    '<div class="card ring-wrap" style="margin-bottom:6px">' + ringHTML(stats.pctToday) +
+      '<div><div class="ring-num">' + stats.pctToday + '% of today done</div>' +
+      '<div style="color:var(--muted)">' + stats.doneDueToday + ' of ' +
+        stats.dueTodayCount + ' tasks due today are complete</div></div>' +
+    '</div>';
+
+  // Overdue first — it needs attention — then today's list.
+  if (groups.overdue.length) {
+    html += '<div class="section-title">⚠️ Overdue</div><div class="stagger">' +
+      groups.overdue.map(t => taskCardHTML(state, t)).join('') + '</div>';
+  }
+  html += '<div class="section-title">📅 Today</div>';
+  if (groups.today.length) {
+    html += '<div class="stagger">' + groups.today.map(t => taskCardHTML(state, t)).join('') + '</div>';
+  } else if (!groups.focus.length && !groups.overdue.length) {
+    html += '<div class="card empty"><div class="empty-art">🌅</div>' +
+      '<p>Nothing due today. Add a task above, or pin a Top 3.</p></div>';
+  } else {
+    html += '<div class="card empty"><p>Nothing else due today. 🎉</p></div>';
+  }
+  box.innerHTML = html;
+
+  // Day Complete ritual: the first moment today's plan hits
+  // 100%, celebrate once and offer the Review screen.
+  if (stats.dueTodayCount > 0 && stats.pctToday === 100 &&
+      !state.dayDoneCelebrated[todayStr(now)]) {
+    state.dayDoneCelebrated[todayStr(now)] = true;
+    saveState(state);
+    showDayComplete();
+  }
+}
+
+/* The Day Complete overlay: a small full-screen moment. */
+function showDayComplete() {
+  if (document.getElementById('dayComplete')) return;
+  const d = document.createElement('div');
+  d.className = 'day-complete';
+  d.id = 'dayComplete';
+  d.innerHTML = '<div class="dc-emoji">🎉</div>' +
+    '<div class="dc-title">Day Complete!</div>' +
+    '<p>Everything due today is done. That is how streaks are built.</p>' +
+    '<div class="alarm-actions">' +
+    '<button class="btn btn-primary" id="dcReview">📊 See my Review</button>' +
+    '<button class="btn" id="dcClose">Close</button></div>';
+  document.body.appendChild(d);
+  tymBuzz([150, 60, 150, 60, 300]);
+  document.getElementById('dcClose').addEventListener('click', () => d.remove());
+  document.getElementById('dcReview').addEventListener('click', () => { window.location.href = 'review.html'; });
+}
+
+/* Quick add: type naturally — "Pay fees tomorrow 5pm !high
+   #college" — parse.js pulls out date, time, priority, tags.
+   No date given = due today. Details via the editor (✏️). */
+function quickAdd() {
+  const input = document.getElementById('quickInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  const p = parseQuickAdd(raw, new Date());
+  if (!p.title) { showToast('Type the task name too'); return; }
+  addTaskToState(state, {
+    title: p.title, due: p.due || todayStr(), time: p.time,
+    priority: p.priority || 'med', tags: p.tags, listId: 'personal'
+  });
+  input.value = '';
+  saveState(state);
+  render();
+}
+
+/* Voice input (F5): speak the task instead of typing.
+   Uses the browser's speech recognition when available. */
+function voiceAdd() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('Voice input is not supported in this browser'); return; }
+  const rec = new SR();
+  rec.lang = 'en-IN';
+  showToast('🎙 Listening… speak your task');
+  rec.onresult = e => {
+    document.getElementById('quickInput').value = e.results[0][0].transcript;
+    quickAdd();
+  };
+  rec.onerror = () => showToast('Could not hear that — try again');
+  rec.start();
+}
+
+__tymInit('today', () => {
+  render();
+  document.getElementById('quickAddBtn').addEventListener('click', quickAdd);
+  document.getElementById('quickInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') quickAdd();
+  });
+  document.getElementById('newTaskBtn').addEventListener('click', () => openTaskEditor(null));
+  const vb = document.getElementById('voiceBtn');
+  if (vb) vb.addEventListener('click', voiceAdd);
+  const pb = document.getElementById('printBtn');
+  if (pb) pb.addEventListener('click', () => window.print());
+});
+
+/* Re-draw when the data changes anywhere (editor, cards). */
+
+
+__tymRegister('today', render);
+
+})();
+</script>
+<script>
+/* ===== screen: all ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · all.js
+   What this file does: the ALL TASKS screen — every open
+   task with search, a sort picker, and a list filter.
+   Card clicks are handled in editor.js (shared pattern).
+   Drag-to-reorder works when sort = "My order".
+   ============================================================ */
+
+let allQuery = '';       // current search text
+let allList = 'all';     // current list filter ('all' or a list id)
+let allSort = 'due';     // current sort mode
+
+function render() {
+  const box = document.getElementById('screenContent');
+  let tasks = state.tasks.filter(isOpenTask);
+  if (allList !== 'all') tasks = tasks.filter(t => t.listId === allList);
+  tasks = searchTasks(tasks, allQuery);
+  tasks = sortTasks(tasks, allSort);
+
+  // List filter chips, built from the state's lists.
+  const chips = ['<button class="btn' + (allList === 'all' ? ' btn-primary' : '') +
+    '" data-list="all">All lists</button>'].concat(
+    state.lists.map(l => '<button class="btn' + (allList === l.id ? ' btn-primary' : '') +
+      '" data-list="' + l.id + '">' + escapeHTML(l.name) + '</button>')).join(' ');
+  document.getElementById('listChips').innerHTML = chips;
+
+  if (!tasks.length) {
+    box.innerHTML = '<div class="card empty"><div class="empty-art">🗂️</div>' +
+      '<p>' + (allQuery ? 'No tasks match your search.' : 'No open tasks here.') + '</p></div>';
+    return;
+  }
+  box.innerHTML = '<div class="stagger">' +
+    tasks.map(t => taskCardHTML(state, t)).join('') + '</div>';
+
+  // Drag to reorder — only meaningful in "My order" sort.
+  if (allSort === 'manual' && !allQuery) {
+    box.querySelectorAll('.task').forEach(card => {
+      card.draggable = true;
+      card.addEventListener('dragstart', () => { card.classList.add('dragging'); });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging');
+        // Save the new order from the card positions on screen.
+        const ids = Array.from(box.querySelectorAll('.task')).map(c => c.dataset.card);
+        ids.forEach((id, i) => { const t = findTask(state, id); if (t) t.order = i + 1; });
+        saveState(state);
+      });
+      card.addEventListener('dragover', e => {
+        e.preventDefault();
+        const dragging = box.querySelector('.dragging');
+        if (!dragging || dragging === card) return;
+        const rect = card.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height / 2;
+        card.parentNode.insertBefore(dragging, after ? card.nextSibling : card);
+      });
+    });
+  }
+}
+
+__tymInit('all', () => {
+  render();
+  document.getElementById('searchInput').addEventListener('input', e => {
+    allQuery = e.target.value; render();
+  });
+  document.getElementById('sortSel').addEventListener('change', e => {
+    allSort = e.target.value; render();
+  });
+  document.getElementById('listChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-list]');
+    if (b) { allList = b.dataset.list; render(); }
+  });
+  document.getElementById('newTaskBtnAll').addEventListener('click', () => openTaskEditor(null));
+});
+
+
+
+__tymRegister('all', render);
+
+})();
+</script>
+<script>
+/* ===== screen: calendar ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · calendar.js
+   What this file does: the CALENDAR screen — a month grid
+   with task counts per day. Click a day to see its tasks.
+   Drag a task card onto another day to reschedule it.
+   ============================================================ */
+
+const calStart = new Date();
+let calYear = calStart.getFullYear();
+let calMonth = calStart.getMonth();       // 0 = January
+let calSelected = todayStr();
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const first = new Date(calYear, calMonth, 1);
+  const monthName = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+  const leadBlanks = (first.getDay() + 6) % 7; // weeks start on Monday
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = todayStr();
+
+  // Count open tasks per day of this month.
+  const counts = {};
+  for (const t of state.tasks) {
+    if (t.status === 'done' || !t.due) continue;
+    counts[t.due] = (counts[t.due] || 0) + 1;
+  }
+
+  let cells = '';
+  for (let i = 0; i < leadBlanks; i++) cells += '<div class="cal-cell cal-blank"></div>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = calYear + '-' + pad2(calMonth + 1) + '-' + pad2(d);
+    const n = counts[ds] || 0;
+    cells += '<button class="cal-cell' + (ds === today ? ' cal-today' : '') +
+      (ds === calSelected ? ' cal-sel' : '') + '" data-day="' + ds + '">' +
+      '<span class="cal-num">' + d + '</span>' +
+      (n ? '<span class="cal-dots">' + '●'.repeat(Math.min(n, 5)) +
+        '<span class="cal-count">' + n + '</span></span>' : '') + '</button>';
+  }
+
+  const dayTasks = sortTasks(
+    state.tasks.filter(t => t.due === calSelected && t.status !== 'done'), 'due');
+  const doneCount = state.tasks.filter(t => t.due === calSelected && t.status === 'done').length;
+
+  box.innerHTML =
+    '<div class="cal-head">' +
+      '<button class="btn" id="calPrev">‹</button>' +
+      '<h2 style="margin:0">' + monthName + '</h2>' +
+      '<button class="btn" id="calNext">›</button>' +
+      '<button class="btn" id="calToday">Today</button>' +
+    '</div>' +
+    '<div class="cal-grid cal-week">' +
+      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => '<div>' + d + '</div>').join('') +
+    '</div>' +
+    '<div class="cal-grid stagger">' + cells + '</div>' +
+    '<div class="section-title">' + dueLabel(calSelected) + ' — ' +
+      new Date(...calSelected.split('-').map((v, i) => i === 1 ? v - 1 : v))
+        .toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) +
+      (doneCount ? ' · ' + doneCount + ' done' : '') + '</div>' +
+    (dayTasks.length
+      ? '<div id="calDayList">' + dayTasks.map(t => taskCardHTML(state, t)).join('') + '</div>'
+      : '<div class="card empty"><p>No open tasks this day. Click any task\'s ✏️ elsewhere, or drag one here.</p></div>');
+
+  // Month navigation + day picking.
+  document.getElementById('calPrev').addEventListener('click', () => {
+    calMonth -= 1; if (calMonth < 0) { calMonth = 11; calYear -= 1; } render();
+  });
+  document.getElementById('calNext').addEventListener('click', () => {
+    calMonth += 1; if (calMonth > 11) { calMonth = 0; calYear += 1; } render();
+  });
+  document.getElementById('calToday').addEventListener('click', () => {
+    const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth();
+    calSelected = todayStr(); render();
+  });
+  box.querySelectorAll('[data-day]').forEach(c =>
+    c.addEventListener('click', () => { calSelected = c.dataset.day; render(); }));
+
+  // Drag a task card onto a day cell to move it there.
+  box.querySelectorAll('#calDayList .task').forEach(card => {
+    card.draggable = true;
+    card.addEventListener('dragstart', e =>
+      e.dataTransfer.setData('text/tym-task', card.dataset.card));
+  });
+  box.querySelectorAll('[data-day]').forEach(cell => {
+    cell.addEventListener('dragover', e => e.preventDefault());
+    cell.addEventListener('drop', e => {
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/tym-task');
+      const t = findTask(state, id);
+      if (t && t.due !== cell.dataset.day) {
+        t.due = cell.dataset.day;
+        saveState(state);
+        render();
+        showToast('Moved to ' + dueLabel(t.due));
+      }
+    });
+  });
+}
+
+__tymRegister('calendar', render);
+
+
+__tymRegister('calendar', render);
+
+})();
+</script>
+<script>
+/* ===== screen: board ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · board.js
+   What this file does: the BOARD screen — Kanban columns
+   To do / Doing / Done. Drag a card to another column to
+   move it. Dropping into Done completes the task properly
+   (via tasks.js, so streaks and repeats still work).
+   ============================================================ */
+
+const BOARD_COLS = [
+  { id: 'todo', name: 'To do', icon: '📝' },
+  { id: 'doing', name: 'Doing', icon: '🚧' },
+  { id: 'done', name: 'Done', icon: '✅' }
+];
+
+/* A small card for the board (the full card lives on the
+   Today/All screens — the board stays light to drag). */
+function boardCardHTML(t) {
+  return '<div class="board-card" draggable="true" data-bcard="' + t.id + '">' +
+    '<div class="board-card-title">' + escapeHTML(t.title) + '</div>' +
+    '<div class="task-meta">' +
+      '<span class="pill prio-' + t.priority + '">' + t.priority + '</span>' +
+      (t.due ? '<span class="pill">' + dueLabel(t.due) + '</span>' : '') +
+      '<button class="icon-btn" data-edit="' + t.id + '">✏️</button>' +
+    '</div></div>';
+}
+
+function render() {
+  const box = document.getElementById('screenContent');
+  box.innerHTML = '<div class="board stagger">' + BOARD_COLS.map(col => {
+    const tasks = sortTasks(state.tasks.filter(t => t.status === col.id), 'priority');
+    return '<div class="board-col" data-col="' + col.id + '">' +
+      '<h3>' + col.icon + ' ' + col.name + ' <span class="badge">' + tasks.length + '</span></h3>' +
+      (tasks.map(boardCardHTML).join('') ||
+        '<p class="board-empty">Drop tasks here</p>') +
+      '</div>';
+  }).join('') + '</div>';
+
+  // Drag between columns.
+  box.querySelectorAll('[data-bcard]').forEach(card => {
+    card.addEventListener('dragstart', e =>
+      e.dataTransfer.setData('text/tym-task', card.dataset.bcard));
+  });
+  box.querySelectorAll('[data-col]').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('dragover'); });
+    col.addEventListener('dragleave', () => col.classList.remove('dragover'));
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.classList.remove('dragover');
+      const id = e.dataTransfer.getData('text/tym-task');
+      const t = findTask(state, id);
+      if (!t || t.status === col.dataset.col) return;
+      if (col.dataset.col === 'done') setTaskDone(state, id, true, new Date());
+      else if (t.status === 'done') { setTaskDone(state, id, false, new Date()); t.status = col.dataset.col; }
+      else t.status = col.dataset.col;
+      saveState(state);
+      render();
+    });
+  });
+}
+
+__tymRegister('board', render);
+
+
+__tymRegister('board', render);
+
+})();
+</script>
+<script>
+/* ===== screen: matrix ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · matrix.js
+   What this file does: the MATRIX screen — Eisenhower's
+   urgent × important grid.
+   Urgent = overdue, or due within 2 days.
+   Important = high priority.
+   Drag a card to another box to change it: moving into
+   "important" sets high priority; into "urgent" pulls the
+   due date to today; out of "urgent" pushes it a week out.
+   ============================================================ */
+
+function isUrgent(t, now) {
+  if (!t.due) return false;
+  return daysBetween(todayStr(now), t.due) <= 2;
+}
+
+const QUADS = [
+  { id: 'do', name: 'Do first', icon: '🔥', urgent: true, important: true },
+  { id: 'plan', name: 'Plan', icon: '🗓️', urgent: false, important: true },
+  { id: 'quick', name: 'Quick / delegate', icon: '⚡', urgent: true, important: false },
+  { id: 'later', name: 'Later', icon: '🧊', urgent: false, important: false }
+];
+
+function quadOf(t, now) {
+  const u = isUrgent(t, now), i = t.priority === 'high';
+  return QUADS.find(q => q.urgent === u && q.important === i).id;
+}
+
+function matrixCardHTML(t) {
+  return '<div class="board-card" draggable="true" data-mcard="' + t.id + '">' +
+    '<div class="board-card-title">' + escapeHTML(t.title) + '</div>' +
+    '<div class="task-meta">' +
+      (t.due ? '<span class="pill">' + dueLabel(t.due) + '</span>' : '<span class="pill">no date</span>') +
+      '<button class="icon-btn" data-edit="' + t.id + '">✏️</button>' +
+    '</div></div>';
+}
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const now = new Date();
+  const open = state.tasks.filter(t => t.status !== 'done');
+  box.innerHTML =
+    '<p style="color:var(--muted);margin-top:0">Drag a card to another box — its priority and due date change to match.</p>' +
+    '<div class="matrix stagger">' + QUADS.map(q => {
+      const tasks = open.filter(t => quadOf(t, now) === q.id);
+      return '<div class="matrix-cell" data-quad="' + q.id + '">' +
+        '<h3>' + q.icon + ' ' + q.name + ' <span class="badge">' + tasks.length + '</span></h3>' +
+        (tasks.map(matrixCardHTML).join('') || '<p class="board-empty">—</p>') +
+        '</div>';
+    }).join('') + '</div>';
+
+  box.querySelectorAll('[data-mcard]').forEach(card => {
+    card.addEventListener('dragstart', e =>
+      e.dataTransfer.setData('text/tym-task', card.dataset.mcard));
+  });
+  box.querySelectorAll('[data-quad]').forEach(cell => {
+    cell.addEventListener('dragover', e => e.preventDefault());
+    cell.addEventListener('drop', e => {
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/tym-task');
+      const t = findTask(state, id);
+      if (!t) return;
+      const q = QUADS.find(x => x.id === cell.dataset.quad);
+      const today = todayStr();
+      t.priority = q.important ? 'high' : (t.priority === 'high' ? 'med' : t.priority);
+      if (q.urgent && (!t.due || t.due > addDaysStr(today, 2))) t.due = today;
+      if (!q.urgent && t.due && t.due <= addDaysStr(today, 2)) t.due = addDaysStr(today, 7);
+      saveState(state);
+      render();
+    });
+  });
+}
+
+__tymRegister('matrix', render);
+
+
+__tymRegister('matrix', render);
+
+})();
+</script>
+<script>
+/* ===== screen: timeline ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · timeline.js
+   What this file does: the TIMELINE screen — one day laid
+   out hour by hour. Includes:
+   - "Plan My Day" (plan.js arrangeDay) with Undo
+   - "What can I do now?" (plan.js whatCanIDo)
+   Pick any date with the date box at the top.
+   ============================================================ */
+
+let tlDate = todayStr();
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const dayTasks = state.tasks.filter(t => t.due === tlDate && t.status !== 'done');
+  const timed = dayTasks.filter(t => t.time).sort((a, b) => a.time < b.time ? -1 : 1);
+  const untimed = sortTasks(dayTasks.filter(t => !t.time), 'priority');
+  const plannedMin = dayTasks.reduce((sum, t) => sum + (t.estMinutes || 30), 0);
+
+  let rows = '';
+  for (let h = 6; h <= 22; h++) {
+    const hh = pad2(h) + ':00';
+    const here = timed.filter(t => t.time.slice(0, 2) === pad2(h));
+    rows += '<div class="tl-row"><div class="tl-hour">' + hh + '</div>' +
+      '<div class="tl-slot">' +
+      (here.length ? here.map(t =>
+        '<div class="tl-item prio-border-' + t.priority + '">' +
+        '<b>' + t.time + '</b> ' + escapeHTML(t.title) +
+        (t.estMinutes ? ' <span class="pill">⏱ ' + t.estMinutes + 'm</span>' : '') +
+        ' <button class="icon-btn" data-edit="' + t.id + '">✏️</button></div>').join('')
+        : '<span class="tl-free">free</span>') +
+      '</div></div>';
+  }
+
+  box.innerHTML =
+    '<div class="toolbar">' +
+      '<input class="field" type="date" id="tlDate" value="' + tlDate + '" style="flex:0 1 190px">' +
+      '<button class="btn btn-primary" id="tlPlan">✨ Plan My Day</button>' +
+      '<span class="pill" style="align-self:center">Planned: ' +
+        Math.floor(plannedMin / 60) + 'h ' + (plannedMin % 60) + 'm</span>' +
+    '</div>' +
+    '<div class="card" style="margin-bottom:14px"><h2>⏱ What can I do now?</h2>' +
+      '<div class="toolbar" style="margin:0">' +
+        '<input class="field" id="wcFree" type="number" min="5" step="5" value="30" style="flex:0 1 130px">' +
+        '<span style="align-self:center;color:var(--muted)">free minutes · energy</span>' +
+        '<select class="field" id="wcEnergy" style="flex:0 1 150px">' +
+          '<option value="high">High 🔋</option><option value="med" selected>Medium</option>' +
+          '<option value="low">Low 🪫</option></select>' +
+        '<button class="btn" id="wcGo">Find</button>' +
+      '</div><div id="wcResults" style="margin-top:10px"></div></div>' +
+    (untimed.length
+      ? '<div class="section-title">No time set</div><div style="margin-bottom:8px">' +
+        untimed.map(t => taskCardHTML(state, t)).join('') + '</div>'
+      : '') +
+    '<div class="card">' + rows + '</div>';
+
+  document.getElementById('tlDate').addEventListener('change', e => {
+    tlDate = e.target.value || todayStr(); render();
+  });
+  document.getElementById('tlPlan').addEventListener('click', planMyDay);
+  document.getElementById('wcGo').addEventListener('click', () => {
+    const free = parseInt(document.getElementById('wcFree').value, 10) || 30;
+    const energy = document.getElementById('wcEnergy').value;
+    const picks = whatCanIDo(state.tasks, free, energy).slice(0, 5);
+    document.getElementById('wcResults').innerHTML = picks.length
+      ? picks.map(t => taskCardHTML(state, t)).join('')
+      : '<p style="color:var(--muted)">Nothing fits that slot — enjoy the break. ☕</p>';
+  });
+}
+
+/* Plan My Day: assign times to untimed tasks. Undo included. */
+function planMyDay() {
+  const placed = arrangeDay(state.tasks, tlDate, '09:00');
+  if (!placed.length) { showToast('Nothing to arrange — all tasks have times'); return; }
+  const old = placed.map(p => ({ id: p.id, time: findTask(state, p.id).time }));
+  for (const p of placed) findTask(state, p.id).time = p.time;
+  saveState(state);
+  render();
+  showToast('Day planned ✨', 'Undo', () => {
+    for (const o of old) findTask(state, o.id).time = o.time;
+    saveState(state);
+    render();
+  });
+}
+
+__tymRegister('timeline', render);
+
+
+__tymRegister('timeline', render);
+
+})();
+</script>
+<script>
+/* ===== screen: habits ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · habits.js
+   What this file does: the HABITS screen.
+   - Habits: tick today's box, watch the 🔥 streak grow.
+     Ticks live in state.habitLog = { habitId: {date: true} }.
+   - Routines: morning/night checklists that start fresh
+     every day (state.routineLog is keyed by date, so a new
+     day automatically shows an untouched list).
+   ============================================================ */
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const now = new Date();
+  const today = todayStr(now);
+  const last7 = lastNDays(7, now);
+
+  // --- Habits ---
+  const habitRows = state.habits.map(h => {
+    const log = state.habitLog[h.id] || {};
+    const streak = habitStreak(log, now);
+    const dots = last7.map(d =>
+      '<span class="habit-dot' + (log[d] ? ' on' : '') + '" title="' + d + '"></span>').join('');
+    return '<div class="task"><div class="task-main">' +
+      '<div class="task-title">' + escapeHTML(h.name) +
+      ' <span class="pill">🔥 ' + streak + ' day streak</span></div>' +
+      '<div class="habit-dots">' + dots + '<span class="habit-week">last 7 days</span></div>' +
+      '</div>' +
+      '<button class="btn' + (log[today] ? ' btn-primary' : '') + '" data-habit-tick="' + h.id + '">' +
+      (log[today] ? '✓ Done today' : 'Mark today') + '</button>' +
+      '<button class="icon-btn" data-habit-del="' + h.id + '" title="Delete habit">🗑</button></div>';
+  }).join('');
+
+  // --- Routines ---
+  const routineCards = state.routines.map(r => {
+    const doneIdx = ((state.routineLog[today] || {})[r.id]) || [];
+    const pct = r.items.length ? Math.round(doneIdx.length / r.items.length * 100) : 0;
+    return '<div class="card" style="margin-bottom:12px"><h2>' + escapeHTML(r.name) +
+      ' <span class="badge">' + pct + '%</span></h2>' +
+      '<div class="progress" style="margin-bottom:10px"><div style="width:' + pct + '%"></div></div>' +
+      r.items.map((item, i) =>
+        '<label class="sub"><input type="checkbox" data-routine="' + r.id + '" data-idx="' + i + '"' +
+        (doneIdx.includes(i) ? ' checked' : '') + '> <span class="' +
+        (doneIdx.includes(i) ? 'sub-done' : '') + '">' + escapeHTML(item) + '</span></label>').join('') +
+      '<div style="margin-top:8px"><button class="icon-btn" data-routine-del="' + r.id + '">🗑 Remove routine</button></div></div>';
+  }).join('');
+
+  const startButtons = ROUTINE_TEMPLATES
+    .filter(t => !state.routines.some(r => r.id === t.id))
+    .map(t => '<button class="btn" data-routine-start="' + t.id + '">＋ ' + t.name + '</button>').join(' ');
+
+  box.innerHTML =
+    '<div class="toolbar"><input class="field" id="habitInput" type="text" placeholder="New habit — e.g. Read 10 pages">' +
+    '<button class="btn btn-primary" id="habitAdd">Add habit</button></div>' +
+    '<div class="toolbar">' + HABIT_IDEAS.map(i =>
+      '<button class="btn" data-habit-idea="' + escapeHTML(i) + '">' + escapeHTML(i) + '</button>').join('') + '</div>' +
+    (habitRows || '<div class="card empty"><div class="empty-art">🔥</div><p>No habits yet. Add one above — small and daily wins.</p></div>') +
+    '<div class="section-title">Daily routines</div>' +
+    (routineCards || '') +
+    (startButtons ? '<div class="toolbar">' + startButtons + '</div>'
+      : '<p style="color:var(--muted)">Routines reset fresh every morning, automatically.</p>');
+
+  document.getElementById('habitAdd').addEventListener('click', addHabitFromInput);
+  document.getElementById('habitInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addHabitFromInput();
+  });
+}
+
+function addHabit(name) {
+  const clean = (name || '').trim();
+  if (!clean) return;
+  state.habits.push({ id: makeId(), name: clean, createdAt: Date.now() });
+  saveState(state);
+  render();
+}
+function addHabitFromInput() {
+  addHabit(document.getElementById('habitInput').value);
+}
+
+/* Screen clicks (delegated — rows are re-drawn often). */
+document.addEventListener('click', e => {
+  const tick = e.target.closest('[data-habit-tick]');
+  if (tick) {
+    const id = tick.dataset.habitTick;
+    const today = todayStr();
+    state.habitLog[id] = state.habitLog[id] || {};
+    if (state.habitLog[id][today]) delete state.habitLog[id][today];
+    else state.habitLog[id][today] = true;
+    saveState(state);
+    render();
+    return;
+  }
+  const idea = e.target.closest('[data-habit-idea]');
+  if (idea) { addHabit(idea.dataset.habitIdea); return; }
+  const del = e.target.closest('[data-habit-del]');
+  if (del) {
+    state.habits = state.habits.filter(h => h.id !== del.dataset.habitDel);
+    delete state.habitLog[del.dataset.habitDel];
+    saveState(state);
+    render();
+    return;
+  }
+  const start = e.target.closest('[data-routine-start]');
+  if (start) {
+    const t = ROUTINE_TEMPLATES.find(x => x.id === start.dataset.routineStart);
+    if (t) state.routines.push({ id: t.id, name: t.name, items: t.items.slice() });
+    saveState(state);
+    render();
+    return;
+  }
+  const rdel = e.target.closest('[data-routine-del]');
+  if (rdel) {
+    state.routines = state.routines.filter(r => r.id !== rdel.dataset.routineDel);
+    saveState(state);
+    render();
+  }
+});
+
+document.addEventListener('change', e => {
+  const box2 = e.target.closest('[data-routine]');
+  if (!box2) return;
+  const today = todayStr();
+  state.routineLog[today] = state.routineLog[today] || {};
+  const arr = state.routineLog[today][box2.dataset.routine] || [];
+  const idx = parseInt(box2.dataset.idx, 10);
+  state.routineLog[today][box2.dataset.routine] =
+    box2.checked ? Array.from(new Set(arr.concat(idx))) : arr.filter(i => i !== idx);
+  saveState(state);
+  render();
+});
+
+__tymRegister('habits', render);
+
+__tymRegister('habits', render);
+
+})();
+</script>
+<script>
+/* ===== screen: focus ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · focus.js
+   What this file does: the FOCUS screen — a Pomodoro timer
+   tied to a task. Work 25 min → break 5 min. Finished work
+   sessions are written to state.focusLog (Review reads it).
+   Extras: rain/noise ambience (made with WebAudio, no file)
+   and a full-screen mode.
+   ============================================================ */
+
+let fMode = 'work';            // 'work' | 'break'
+let fWorkMin = 25, fBreakMin = 5;
+let fLeft = fWorkMin * 60;     // seconds left in this round
+let fRunning = false;
+let fTimer = null;
+let fTaskId = '';
+let noiseNodes = null;         // ambience sound graph
+
+function fmt(sec) {
+  return pad2(Math.floor(sec / 60)) + ':' + pad2(sec % 60);
+}
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const open = state.tasks.filter(t => t.status !== 'done');
+  const todayLog = state.focusLog.filter(s => s.date === todayStr());
+  const minsToday = todayLog.reduce((a, s) => a + s.minutes, 0);
+
+  box.innerHTML =
+    '<div class="focus-wrap card">' +
+      '<div class="focus-modes">' +
+        '<button class="btn' + (fMode === 'work' ? ' btn-primary' : '') + '" id="fmWork">🍅 Work ' + fWorkMin + 'm</button>' +
+        '<button class="btn' + (fMode === 'break' ? ' btn-primary' : '') + '" id="fmBreak">☕ Break ' + fBreakMin + 'm</button>' +
+      '</div>' +
+      '<div class="focus-clock" id="fClock">' + fmt(fLeft) + '</div>' +
+      '<label style="color:var(--muted);font-size:13px;font-weight:700">Focusing on</label>' +
+      '<select class="field" id="fTask" style="max-width:420px;margin:6px auto 14px">' +
+        '<option value="">— no task, just focus —</option>' +
+        open.map(t => '<option value="' + t.id + '"' + (t.id === fTaskId ? ' selected' : '') + '>' +
+          escapeHTML(t.title) + '</option>').join('') +
+      '</select>' +
+      '<div class="focus-actions">' +
+        '<button class="btn btn-primary" id="fToggle" style="font-size:16px;padding:12px 26px">' +
+          (fRunning ? '⏸ Pause' : '▶ Start') + '</button>' +
+        '<button class="btn" id="fReset">↺ Reset</button>' +
+        '<button class="btn" id="fNoise">🌧 Ambience: off</button>' +
+        '<button class="btn" id="fFull">⛶ Full screen</button>' +
+      '</div>' +
+      '<p style="color:var(--muted);margin-top:16px">Today: ' + todayLog.length +
+        ' sessions · ' + minsToday + ' focus minutes</p>' +
+    '</div>';
+
+  document.getElementById('fmWork').addEventListener('click', () => switchMode('work'));
+  document.getElementById('fmBreak').addEventListener('click', () => switchMode('break'));
+  document.getElementById('fToggle').addEventListener('click', toggleRun);
+  document.getElementById('fReset').addEventListener('click', () => { stopTimer(); fLeft = (fMode === 'work' ? fWorkMin : fBreakMin) * 60; render(); });
+  document.getElementById('fTask').addEventListener('change', e => { fTaskId = e.target.value; });
+  document.getElementById('fNoise').addEventListener('click', toggleNoise);
+  document.getElementById('fFull').addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  });
+}
+
+function switchMode(mode) {
+  stopTimer();
+  fMode = mode;
+  fLeft = (mode === 'work' ? fWorkMin : fBreakMin) * 60;
+  render();
+}
+
+function stopTimer() {
+  fRunning = false;
+  if (fTimer) { clearInterval(fTimer); fTimer = null; }
+  document.title = 'TYM · Track Your Mind';
+}
+
+function toggleRun() {
+  if (fRunning) { stopTimer(); render(); return; }
+  fRunning = true;
+  document.getElementById('fToggle').textContent = '⏸ Pause';
+  fTimer = setInterval(() => {
+    fLeft -= 1;
+    const clock = document.getElementById('fClock');
+    if (clock) clock.textContent = fmt(fLeft);
+    document.title = fmt(fLeft) + ' · TYM Focus';
+    if (fLeft <= 0) roundDone();
+  }, 1000);
+}
+
+/* A round finished: log work sessions, buzz, switch mode. */
+function roundDone() {
+  stopTimer();
+  tymBuzz([200, 80, 200, 80, 400]);
+  if (fMode === 'work') {
+    state.focusLog.push({ date: todayStr(), minutes: fWorkMin, taskId: fTaskId || null });
+    saveState(state);
+    showToast('Session done 🎉 Logged ' + fWorkMin + ' focus minutes');
+    fMode = 'break'; fLeft = fBreakMin * 60;
+  } else {
+    showToast('Break over — back to it 💪');
+    fMode = 'work'; fLeft = fWorkMin * 60;
+  }
+  render();
+}
+
+/* Rain-like ambience: filtered noise, generated live.
+   No audio file is shipped with the app. */
+function toggleNoise(e) {
+  if (noiseNodes) {
+    noiseNodes.src.stop(); noiseNodes = null;
+    e.target.textContent = '🌧 Ambience: off';
+    return;
+  }
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const len = ctx.sampleRate * 2;
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) { // brown-ish noise = soft rain
+      const white = Math.random() * 2 - 1;
+      last = (last + 0.02 * white) / 1.02;
+      data[i] = last * 3.2;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    const gain = ctx.createGain(); gain.gain.value = 0.16;
+    src.connect(gain); gain.connect(ctx.destination);
+    src.start();
+    noiseNodes = { src, ctx };
+    e.target.textContent = '🌧 Ambience: on';
+  } catch (err) { showToast('Ambience is not available here'); }
+}
+
+__tymRegister('focus', render);
+
+
+__tymRegister('focus', render);
+
+})();
+</script>
+<script>
+/* ===== screen: review ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · review.js
+   What this file does: the REVIEW screen — proof of work.
+   - This week's completions as bars
+   - A GitHub-style year heatmap of completed tasks
+   - Focus minutes (from the Focus screen's log)
+   - Habit consistency for the last 4 weeks
+   All numbers come from real state — nothing is decorative.
+   ============================================================ */
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const now = new Date();
+  const stats = dayStats(state, now);
+  const week = weekSummary(state.completions, now);
+  const weekTotal = week.reduce((a, d) => a + d.count, 0);
+  const maxWeek = Math.max(1, ...week.map(d => d.count));
+  const focusTotal = state.focusLog.reduce((a, s) => a + s.minutes, 0);
+  const focusWeek = state.focusLog
+    .filter(s => lastNDays(7, now).includes(s.date))
+    .reduce((a, s) => a + s.minutes, 0);
+
+  // Week bars (plain divs — height = the day's count).
+  const bars = week.map(d => {
+    const dayName = new Date(...d.date.split('-').map((v, i) => i === 1 ? v - 1 : v))
+      .toLocaleDateString(undefined, { weekday: 'narrow' });
+    return '<div class="bar-col"><div class="bar" style="height:' +
+      Math.max(4, Math.round(d.count / maxWeek * 100)) + '%" title="' + d.date + ': ' + d.count + '"></div>' +
+      '<span>' + dayName + '</span><b>' + d.count + '</b></div>';
+  }).join('');
+
+  // Year heatmap: last 364 days + up to today, in week columns.
+  const days = lastNDays(364, now);
+  const maxCount = Math.max(1, ...days.map(d => state.completions[d] || 0));
+  const cells = days.map(d => {
+    const c = state.completions[d] || 0;
+    const level = c === 0 ? 0 : Math.min(4, Math.ceil(c / maxCount * 4));
+    return '<span class="heat heat-' + level + '" title="' + d + ': ' + c + ' done"></span>';
+  }).join('');
+
+  // Habit consistency: per habit, dots for the last 28 days.
+  const last28 = lastNDays(28, now);
+  const habitRows = state.habits.map(h => {
+    const log = state.habitLog[h.id] || {};
+    const doneCount = last28.filter(d => log[d]).length;
+    return '<div class="habit-review"><span class="habit-review-name">' + escapeHTML(h.name) +
+      ' · ' + doneCount + '/28</span><span class="habit-dots">' +
+      last28.map(d => '<span class="habit-dot' + (log[d] ? ' on' : '') + '" title="' + d + '"></span>').join('') +
+      '</span></div>';
+  }).join('');
+
+  box.innerHTML =
+    '<div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">' +
+      '<div class="stat"><b>' + stats.totalDone + '</b><span>tasks done (all time)</span></div>' +
+      '<div class="stat"><b>' + weekTotal + '</b><span>done this week</span></div>' +
+      '<div class="stat"><b>' + longestStreak(state.completions) + ' 🔥</b><span>longest streak</span></div>' +
+      '<div class="stat"><b>' + focusTotal + 'm</b><span>focus time (' + focusWeek + 'm this week)</span></div>' +
+    '</div>' +
+    '<div class="card" style="margin-top:14px"><h2>This week</h2>' +
+      '<div class="bars">' + bars + '</div></div>' +
+    '<div class="card" style="margin-top:14px"><h2>Your year of showing up</h2>' +
+      '<div class="heat-wrap">' + cells + '</div>' +
+      '<p style="color:var(--muted);font-size:12px;margin:8px 0 0">Each square is a day. Darker = more tasks finished.</p></div>' +
+    (habitRows
+      ? '<div class="card" style="margin-top:14px"><h2>Habits — last 28 days</h2>' + habitRows + '</div>'
+      : '');
+}
+
+__tymRegister('review', render);
+
+
+__tymRegister('review', render);
+
+})();
+</script>
+<script>
+/* ===== screen: study ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · study.js
+   What this file does: the STUDY screen — subjects with
+   chapters, and a progress % per subject.
+   Spaced revision: when you tick a chapter done, TYM
+   auto-creates a "Revise: <chapter>" task due in 3 days
+   (the forgetting curve is real — one review beats it).
+   Subjects live in state.subjects:
+   [{ id, name, chapters: [{ id, title, done }] }]
+   ============================================================ */
+
+function subjectPct(s) {
+  if (!s.chapters.length) return 0;
+  return Math.round(s.chapters.filter(c => c.done).length / s.chapters.length * 100);
+}
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const overall = state.subjects.length
+    ? Math.round(state.subjects.reduce((a, s) => a + subjectPct(s), 0) / state.subjects.length)
+    : 0;
+
+  box.innerHTML =
+    '<div class="toolbar"><input class="field" id="subjInput" type="text" placeholder="New subject — e.g. Operating Systems">' +
+    '<button class="btn btn-primary" id="subjAdd">Add subject</button>' +
+    (state.subjects.length ? '<span class="pill" style="align-self:center">Overall: ' + overall + '%</span>' : '') +
+    '</div>' +
+    (state.subjects.length ? '' :
+      '<div class="card empty"><div class="empty-art">📚</div><p>No subjects yet. Add your first subject above, then its chapters.</p></div>') +
+    state.subjects.map(s =>
+      '<div class="card" style="margin-bottom:12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+          '<h2 style="margin:0">' + escapeHTML(s.name) + '</h2>' +
+          '<span><span class="badge">' + subjectPct(s) + '% · ' +
+            s.chapters.filter(c => c.done).length + '/' + s.chapters.length + ' chapters</span> ' +
+          '<button class="icon-btn" data-subj-del="' + s.id + '">🗑</button></span>' +
+        '</div>' +
+        '<div class="progress" style="margin:10px 0"><div style="width:' + subjectPct(s) + '%"></div></div>' +
+        s.chapters.map(c =>
+          '<label class="sub"><input type="checkbox" data-chapter="' + c.id + '" data-subject="' + s.id + '"' +
+          (c.done ? ' checked' : '') + '> <span class="' + (c.done ? 'sub-done' : '') + '">' +
+          escapeHTML(c.title) + '</span></label>').join('') +
+        '<div class="toolbar" style="margin:10px 0 0">' +
+          '<input class="field" type="text" placeholder="Add a chapter…" data-chapter-input="' + s.id + '">' +
+          '<button class="btn" data-chapter-add="' + s.id + '">Add chapter</button>' +
+        '</div>' +
+      '</div>').join('');
+
+  document.getElementById('subjAdd').addEventListener('click', () => {
+    const v = document.getElementById('subjInput').value.trim();
+    if (!v) return;
+    state.subjects.push({ id: makeId(), name: v, chapters: [] });
+    saveState(state);
+    render();
+  });
+}
+
+document.addEventListener('click', e => {
+  const add = e.target.closest('[data-chapter-add]');
+  if (add) {
+    const sid = add.dataset.chapterAdd;
+    const input = document.querySelector('[data-chapter-input="' + sid + '"]');
+    const v = input.value.trim();
+    if (!v) return;
+    const s = state.subjects.find(x => x.id === sid);
+    s.chapters.push({ id: makeId(), title: v, done: false });
+    saveState(state);
+    render();
+    return;
+  }
+  const del = e.target.closest('[data-subj-del]');
+  if (del) {
+    state.subjects = state.subjects.filter(x => x.id !== del.dataset.subjDel);
+    saveState(state);
+    render();
+  }
+});
+
+document.addEventListener('change', e => {
+  const cb = e.target.closest('[data-chapter]');
+  if (!cb) return;
+  const s = state.subjects.find(x => x.id === cb.dataset.subject);
+  const c = s && s.chapters.find(x => x.id === cb.dataset.chapter);
+  if (!c) return;
+  c.done = cb.checked;
+  saveState(state);
+  render();
+  // Spaced revision: a finished chapter gets a +3 day review task.
+  if (c.done) {
+    addTaskToState(state, {
+      title: 'Revise: ' + c.title + ' (' + s.name + ')',
+      due: addDaysStr(todayStr(), 3), listId: 'study',
+      priority: 'med', tags: ['revision']
+    });
+    saveState(state);
+    showToast('Chapter done 🎉 Revision task set for +3 days');
+  }
+});
+
+__tymRegister('study', render);
+
+__tymRegister('study', render);
+
+})();
+</script>
+<script>
+/* ===== screen: exams ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · exams.js
+   What this file does: the EXAMS screen — countdown cards
+   for every exam, and a one-tap REVISION PLAN: creates
+   spaced revision tasks at exam−7, exam−3 and exam−1 days.
+   Exams live in state.exams: [{ id, subject, date }]
+   ============================================================ */
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const today = todayStr();
+  const upcoming = state.exams.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+
+  box.innerHTML =
+    '<div class="toolbar">' +
+      '<input class="field" id="examSubject" type="text" placeholder="Subject — e.g. Compiler Design">' +
+      '<input class="field" id="examDate" type="date" style="flex:0 1 190px">' +
+      '<button class="btn btn-primary" id="examAdd">Add exam</button>' +
+    '</div>' +
+    (upcoming.length ? '<div class="exam-grid stagger">' + upcoming.map(x => {
+      const days = daysBetween(today, x.date);
+      const label = days < 0 ? 'done' : days === 0 ? 'TODAY 🔥' : days === 1 ? 'tomorrow' : days + ' days to go';
+      return '<div class="card exam-card">' +
+        '<div class="exam-days">' + (days < 0 ? '✓' : days) + '</div>' +
+        '<div class="exam-label">' + (days >= 0 ? 'days' : '') + '</div>' +
+        '<h2 style="margin:6px 0 2px">' + escapeHTML(x.subject) + '</h2>' +
+        '<p style="color:var(--muted);margin:0 0 10px">' +
+          new Date(...x.date.split('-').map((v, i) => i === 1 ? v - 1 : v))
+            .toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) +
+          ' · ' + label + '</p>' +
+        '<button class="btn" data-exam-plan="' + x.id + '">🗓 Revision plan</button> ' +
+        '<button class="icon-btn" data-exam-del="' + x.id + '">🗑</button>' +
+      '</div>';
+    }).join('') + '</div>'
+    : '<div class="card empty"><div class="empty-art">⏳</div><p>No exams yet. Add one above and the countdown begins.</p></div>');
+
+  document.getElementById('examAdd').addEventListener('click', () => {
+    const subject = document.getElementById('examSubject').value.trim();
+    const date = document.getElementById('examDate').value;
+    if (!subject || !date) { showToast('Add a subject and a date'); return; }
+    state.exams.push({ id: makeId(), subject, date });
+    saveState(state);
+    render();
+  });
+}
+
+document.addEventListener('click', e => {
+  const plan = e.target.closest('[data-exam-plan]');
+  if (plan) {
+    const x = state.exams.find(v => v.id === plan.dataset.examPlan);
+    if (!x) return;
+    const today = todayStr();
+    const rounds = [
+      { at: addDaysStr(x.date, -7), name: 'Round 1 — full revision' },
+      { at: addDaysStr(x.date, -3), name: 'Round 2 — weak areas' },
+      { at: addDaysStr(x.date, -1), name: 'Final — formulas & key points' }
+    ].filter(r => r.at >= today);
+    if (!rounds.length) { showToast('Exam is too close — revise today 💪'); return; }
+    rounds.forEach(r => addTaskToState(state, {
+      title: x.subject + ': ' + r.name, due: r.at, listId: 'study',
+      priority: 'high', tags: ['revision', 'exam']
+    }));
+    saveState(state);
+    showToast('Revision plan created: ' + rounds.length + ' tasks 🗓');
+    return;
+  }
+  const del = e.target.closest('[data-exam-del]');
+  if (del) {
+    state.exams = state.exams.filter(v => v.id !== del.dataset.examDel);
+    saveState(state);
+    render();
+  }
+});
+
+__tymRegister('exams', render);
+
+__tymRegister('exams', render);
+
+})();
+</script>
+<script>
+/* ===== screen: timetable ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · timetable.js
+   What this file does: the TIMETABLE screen — the weekly
+   class schedule as a 7-column grid. Entries live in
+   state.timetable: [{ id, day, start, end, name, room }]
+   day: 0 = Monday ... 6 = Sunday.
+   ============================================================ */
+
+const TT_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const todayIdx = (new Date().getDay() + 6) % 7; // Monday = 0
+
+  box.innerHTML =
+    '<div class="toolbar">' +
+      '<select class="field" id="ttDay" style="flex:0 1 150px">' +
+        TT_DAYS.map((d, i) => '<option value="' + i + '"' + (i === todayIdx ? ' selected' : '') + '>' + d + '</option>').join('') +
+      '</select>' +
+      '<input class="field" id="ttStart" type="time" value="09:00" style="flex:0 1 120px">' +
+      '<input class="field" id="ttEnd" type="time" value="10:00" style="flex:0 1 120px">' +
+      '<input class="field" id="ttName" type="text" placeholder="Class / subject">' +
+      '<input class="field" id="ttRoom" type="text" placeholder="Room" style="flex:0 1 110px">' +
+      '<button class="btn btn-primary" id="ttAdd">Add</button>' +
+    '</div>' +
+    '<div class="tt-grid">' + TT_DAYS.map((d, i) => {
+      const entries = state.timetable.filter(t => t.day === i)
+        .sort((a, b) => a.start < b.start ? -1 : 1);
+      return '<div class="tt-col' + (i === todayIdx ? ' tt-today' : '') + '">' +
+        '<h4>' + d.slice(0, 3) + (i === todayIdx ? ' ·' : '') + '</h4>' +
+        (entries.map(t =>
+          '<div class="tt-block"><b>' + t.start + '–' + t.end + '</b><br>' +
+          escapeHTML(t.name) + (t.room ? '<br><span>' + escapeHTML(t.room) + '</span>' : '') +
+          ' <button class="icon-btn" data-tt-del="' + t.id + '">✕</button></div>').join('') ||
+          '<p class="board-empty">—</p>') +
+        '</div>';
+    }).join('') + '</div>';
+
+  document.getElementById('ttAdd').addEventListener('click', () => {
+    const name = document.getElementById('ttName').value.trim();
+    if (!name) { showToast('Add the class name'); return; }
+    state.timetable.push({
+      id: makeId(),
+      day: parseInt(document.getElementById('ttDay').value, 10),
+      start: document.getElementById('ttStart').value || '09:00',
+      end: document.getElementById('ttEnd').value || '10:00',
+      name, room: document.getElementById('ttRoom').value.trim()
+    });
+    saveState(state);
+    render();
+  });
+}
+
+document.addEventListener('click', e => {
+  const del = e.target.closest('[data-tt-del]');
+  if (del) {
+    state.timetable = state.timetable.filter(t => t.id !== del.dataset.ttDel);
+    saveState(state);
+    render();
+  }
+});
+
+__tymRegister('timetable', render);
+
+__tymRegister('timetable', render);
+
+})();
+</script>
+<script>
+/* ===== screen: completed ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · completed.js
+   What this file does: the COMPLETED screen — every task
+   marked done, newest first. From here a task can be
+   reopened (untick it), deleted forever, or all cleared.
+   ============================================================ */
+
+function render() {
+  const box = document.getElementById('screenContent');
+  const done = state.tasks
+    .filter(t => t.status === 'done')
+    .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+
+  if (!done.length) {
+    box.innerHTML = '<div class="card empty"><div class="empty-art">✅</div>' +
+      '<p>Nothing completed yet. Your finished tasks will collect here.</p></div>';
+    return;
+  }
+  box.innerHTML =
+    '<div style="margin-bottom:12px"><button class="btn" id="clearAllBtn">' +
+    '🧹 Clear all completed (' + done.length + ')</button></div>' +
+    '<div class="stagger">' +
+    done.map(t => taskCardHTML(state, t, { compact: true })).join('') + '</div>';
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    const removedAll = state.tasks.filter(t => t.status === 'done');
+    state.tasks = state.tasks.filter(t => t.status !== 'done');
+    saveState(state);
+    render();
+    showToast('Cleared ' + removedAll.length + ' completed tasks', 'Undo', () => {
+      removedAll.forEach(t => restoreTask(state, t));
+      saveState(state);
+      render();
+    });
+  });
+}
+
+__tymRegister('completed', render);
+
+
+__tymRegister('completed', render);
+
+})();
+</script>
+<script>
+/* ===== screen: settings ===== */
+(function(){
+'use strict';
+/* ============================================================
+   TYM — Track Your Mind · settings.js
+   What this file does: the SETTINGS screen.
+   - Theme (light/dark)
+   - Lists manager: add, rename, recolour, delete
+     (deleting a list moves its tasks to Personal)
+   - Notifications: ask the browser/app for permission
+   - Backup: export the whole state as a JSON file,
+     import it back
+   - CSV import: bring tasks in from Todoist / TickTick
+     exports (title + date columns are picked up)
+   - Danger zone: erase everything
+   ============================================================ */
+
+function render() {
+  const box = document.getElementById('screenContent');
+
+  const listRows = state.lists.map(l => {
+    const count = state.tasks.filter(t => t.listId === l.id).length;
+    return '<div class="task"><span class="dot" style="background:' + l.color + ';width:14px;height:14px"></span>' +
+      '<div class="task-main"><div class="task-title">' + escapeHTML(l.name) + '</div>' +
+      '<div style="color:var(--muted);font-size:12.5px">' + count + ' tasks</div></div>' +
+      '<input type="color" value="' + l.color + '" data-list-color="' + l.id + '" title="Colour">' +
+      '<button class="icon-btn" data-list-rename="' + l.id + '">✏️</button>' +
+      '<button class="icon-btn" data-list-del="' + l.id + '">🗑</button></div>';
+  }).join('');
+
+  box.innerHTML =
+    '<div class="card" style="margin-bottom:12px"><h2>🎨 Appearance</h2>' +
+      '<p style="color:var(--muted)">Current theme: <b>' + state.settings.theme + '</b></p>' +
+      '<button class="btn" data-theme-toggle>🌙 Toggle dark / light</button></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>🔔 Notifications</h2>' +
+      '<p style="color:var(--muted)">Browser reminders need permission. In the Android app, alarms ring even when TYM is closed.</p>' +
+      '<button class="btn" id="notifyBtn">Enable notifications</button>' +
+      '<span class="pill" id="notifyState" style="margin-left:8px"></span></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>🗂 My lists</h2>' + listRows +
+      '<div class="toolbar" style="margin:10px 0 0"><input class="field" id="listInput" type="text" placeholder="New list name">' +
+      '<button class="btn btn-primary" id="listAdd">Add list</button></div></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>💾 Backup</h2>' +
+      '<p style="color:var(--muted)">Your data lives only on this device. Export a backup file regularly.</p>' +
+      '<button class="btn" id="exportBtn">⬇ Export backup (JSON)</button> ' +
+      '<label class="btn" style="display:inline-block">⬆ Import backup <input type="file" id="importFile" accept=".json" hidden></label></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>📥 Import tasks from CSV</h2>' +
+      '<p style="color:var(--muted)">Works with Todoist and TickTick exports — the title and due-date columns are picked up; other columns are ignored.</p>' +
+      '<label class="btn" style="display:inline-block">Choose CSV file <input type="file" id="csvFile" accept=".csv" hidden></label>' +
+      '<span class="pill" id="csvResult" style="margin-left:8px"></span></div>' +
+
+    '<div class="card" style="margin-bottom:12px"><h2>⌨️ Shortcuts</h2>' +
+      '<p style="color:var(--muted);line-height:1.9">Ctrl+K — command palette<br>' +
+      'n — new task · t — theme · 1–9 — jump to a screen · Esc — close popups</p></div>' +
+
+    '<div class="card"><h2>⚠️ Danger zone</h2>' +
+      '<p style="color:var(--muted)">Erase every task, habit and setting on this device. Export a backup first if unsure.</p>' +
+      '<button class="btn" id="eraseBtn" style="border-color:var(--high);color:var(--high)">Erase everything</button></div>';
+
+  updateNotifyState();
+  document.getElementById('notifyBtn').addEventListener('click', enableNotifications);
+  document.getElementById('listAdd').addEventListener('click', () => {
+    const v = document.getElementById('listInput').value.trim();
+    if (!v) return;
+    state.lists.push({ id: makeId(), name: v, color: '#6d5cff' });
+    saveState(state);
+    render();
+  });
+  document.getElementById('exportBtn').addEventListener('click', exportBackup);
+  document.getElementById('importFile').addEventListener('change', importBackup);
+  document.getElementById('csvFile').addEventListener('change', importCSV);
+  document.getElementById('eraseBtn').addEventListener('click', () => {
+    if (!confirm('Erase EVERYTHING in TYM on this device? This cannot be undone.')) return;
+    localStorage.removeItem(TYM_STORAGE_KEY);
+    state = createDefaultState();
+    saveState(state);
+    render();
+    showToast('Fresh start — everything erased');
+  });
+}
+
+function updateNotifyState() {
+  const el = document.getElementById('notifyState');
+  if (!el) return;
+  if (tymInApp()) el.textContent = 'app mode — phone notifications';
+  else if (!window.Notification) el.textContent = 'not supported in this browser';
+  else el.textContent = 'permission: ' + Notification.permission;
+}
+
+async function enableNotifications() {
+  if (tymInApp()) { await tymRequestNotifyPermission(); }
+  else if (window.Notification) { await Notification.requestPermission(); }
+  updateNotifyState();
+  showToast('Notifications setting updated 🔔');
+}
+
+/* Download the whole state as tym-backup.json. */
+function exportBackup() {
+  const blob = new Blob([stateToBackupText(state)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tym-backup.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* Load a backup file back in (parseState guards bad files). */
+function importBackup(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    state = parseState(String(r.result));
+    saveState(state);
+    applyTheme();
+    render();
+    showToast('Backup imported 💾');
+  };
+  r.readAsText(file);
+}
+
+/* A tiny CSV reader: handles quoted commas.
+   Finds a title column (TASK/content/title/name) and a
+   date column (DATE/due/scheduled) if they exist. */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quoted) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if (ch !== '\r') cell += ch;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function importCSV(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const rows = parseCSV(String(r.result));
+    if (!rows.length) return;
+    const head = rows[0].map(h => h.trim().toLowerCase());
+    const ti = head.findIndex(h => ['task', 'content', 'title', 'name'].includes(h));
+    const di = head.findIndex(h => ['date', 'due', 'due date', 'scheduled'].includes(h));
+    let added = 0;
+    for (const row of rows.slice(1)) {
+      const title = (ti >= 0 ? row[ti] : row[0] || '').trim();
+      if (!title) continue;
+      let due = null;
+      if (di >= 0 && /^\d{4}-\d{2}-\d{2}/.test((row[di] || '').trim())) due = row[di].trim().slice(0, 10);
+      addTaskToState(state, { title, due, listId: 'personal' });
+      added++;
+    }
+    saveState(state);
+    document.getElementById('csvResult').textContent = added + ' tasks imported';
+    showToast('Imported ' + added + ' tasks 📥');
+  };
+  r.readAsText(file);
+}
+
+/* List manager clicks (delegated). */
+document.addEventListener('click', e => {
+  const ren = e.target.closest('[data-list-rename]');
+  if (ren) {
+    const l = state.lists.find(x => x.id === ren.dataset.listRename);
+    const name = prompt('Rename list', l ? l.name : '');
+    if (l && name && name.trim()) { l.name = name.trim(); saveState(state); render(); }
+    return;
+  }
+  const del = e.target.closest('[data-list-del]');
+  if (del) {
+    const id = del.dataset.listDel;
+    if (state.lists.length <= 1) { showToast('Keep at least one list'); return; }
+    const fallback = state.lists.find(x => x.id !== id);
+    state.tasks.forEach(t => { if (t.listId === id) t.listId = fallback.id; });
+    state.lists = state.lists.filter(x => x.id !== id);
+    saveState(state);
+    render();
+    showToast('List deleted — its tasks moved to ' + fallback.name);
+  }
+});
+document.addEventListener('change', e => {
+  const col = e.target.closest('[data-list-color]');
+  if (col) {
+    const l = state.lists.find(x => x.id === col.dataset.listColor);
+    if (l) { l.color = col.value; saveState(state); }
+  }
+});
+
+__tymRegister('settings', render);
+
+__tymRegister('settings', render);
+
+})();
+</script>
+
+<script>
+/* ===== TYM single-file router (navigation) ===== */
+const TYM_META = {
+  today:    ['\u2600\uFE0F Today', ''],
+  all:      ['\uD83D\uDDC2\uFE0F All Tasks', 'Search, filter and reorder everything you have open.'],
+  calendar: ['\uD83D\uDCC5 Calendar', 'Month view of your tasks — drag a task onto a day to move it.'],
+  board:    ['\uD83D\uDCCB Board', 'Kanban columns — drag tasks from To do to Done.'],
+  matrix:   ['\uD83C\uDFAF Matrix', 'Urgent x Important — the Eisenhower view.'],
+  timeline: ['\uD83D\uDD50 Timeline', 'Your day, hour by hour — with Plan My Day.'],
+  habits:   ['\uD83D\uDD25 Habits', 'Daily habits, streaks and morning routines.'],
+  focus:    ['\uD83C\uDF45 Focus', 'Pomodoro timer tied to your current task.'],
+  review:   ['\uD83D\uDCCA Review', 'Week graph, year heatmap and focus minutes.'],
+  study:    ['\uD83D\uDCDA Study', 'Subjects and chapters, with progress per subject.'],
+  exams:    ['\u23F3 Exams', 'Countdowns and one-tap revision plans.'],
+  timetable:['\uD83C\uDFEB Timetable', 'Your weekly class schedule.'],
+  completed:['\u2705 Completed', 'Everything you have finished. Well done.'],
+  settings: ['\u2699\uFE0F Settings', 'Theme, lists, notifications, backup and imports.']
+};
+function tymActivate(id) {
+  if (!TYM_META[id]) id = 'today';
+  window.__tymActive = id;
+  document.body.dataset.screen = id;
+  buildSidebar(); buildBottomBar();
+  document.getElementById('screenTitle').textContent = TYM_META[id][0];
+  if (id !== 'today') document.getElementById('greetingLine').textContent = TYM_META[id][1];
+  document.getElementById('quickBar').style.display = id === 'today' ? '' : 'none';
+  document.getElementById('allToolbar').style.display = id === 'all' ? '' : 'none';
+  if (window.__tymInits[id] && !window.__tymInited[id]) {
+    window.__tymInited[id] = true; window.__tymInits[id]();
+  } else if (window.__tymRenders[id]) {
+    window.__tymRenders[id]();
+  }
+  window.scrollTo(0, 0);
+}
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-goto]');
+  if (go) {
+    e.preventDefault(); e.stopPropagation();
+    const s = TYM_SCREENS.find(x => x.file === go.dataset.goto);
+    if (s) tymActivate(s.id);
+    return;
+  }
+  const a = e.target.closest('#bottomBar a');
+  if (a) {
+    e.preventDefault();
+    const s = TYM_SCREENS.find(x => a.getAttribute('href') === x.file);
+    if (s) tymActivate(s.id);
+  }
+}, true);
+document.addEventListener('tym:changed', () => {
+  const r = window.__tymRenders[window.__tymActive];
+  if (r) r();
+});
+document.addEventListener('DOMContentLoaded', () => tymActivate('today'));
+</script>
+
+</body>
+</html>
