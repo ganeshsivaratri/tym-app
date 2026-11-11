@@ -1,12 +1,13 @@
 name: Build TYM APK
 on:
+  push:
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Unzip the source
+      - name: Unzip source
         run: unzip -o tym-source.zip -d src
       - uses: actions/setup-node@v4
         with:
@@ -15,19 +16,16 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Install app packages
-        working-directory: src/android-app
-        run: npm install
-      - name: Sync the app into Android
-        working-directory: src/android-app
+      - name: Install packages and build the web app
+        working-directory: src
+        run: npm install && npm run build
+      - name: Sync Capacitor (web app into the Android project)
+        working-directory: src
         run: npx cap sync android
-      - name: Build the APK
-        working-directory: src/android-app/android
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDebug
-      - name: Save the APK as an artifact
-        uses: actions/upload-artifact@v4
+      - name: Build the debug APK
+        working-directory: src/android
+        run: chmod +x ./gradlew && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
         with:
           name: tym-apk
-          path: src/android-app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: src/android/app/build/outputs/apk/debug/app-debug.apk
